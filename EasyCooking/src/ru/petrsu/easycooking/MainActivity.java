@@ -1,14 +1,18 @@
 package ru.petrsu.easycooking;
 
+import ru.petrsu.easycooking.util.DBProvider;
 import ru.petrsu.easycooking.util.SystemUiHider;
-
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.database.SQLException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -44,6 +48,43 @@ public class MainActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
+	
+	/**
+	 * WebView widget from ui
+	 */
+	private WebView mainWebView;
+	/**
+	 * Settings from WebView widget
+	 */
+	private WebSettings webSettings;
+	/**
+	 * database provider
+	 */
+	DBProvider dbp;
+	
+	/**
+	 * Initialization of webapp - setting-up javascript, opening homepage and database 
+	 */
+	@SuppressLint("SetJavaScriptEnabled")
+	protected void initWebApp() {
+		mainWebView = (WebView) findViewById(R.id.mainWebView);
+
+		mainWebView.loadUrl("file:///android_asset/home.html");
+
+		webSettings = mainWebView.getSettings();
+		webSettings.setJavaScriptEnabled(true);
+
+		dbp = new DBProvider(this);
+
+		try {
+			dbp.openDataBase();
+		} catch (SQLException sqle) {
+			throw new Error(sqle.getMessage());
+		}
+		
+		mainWebView.addJavascriptInterface(dbp, "dbProvider");
+
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +138,7 @@ public class MainActivity extends Activity {
 							delayedHide(AUTO_HIDE_DELAY_MILLIS);
 						}
 					}
+					
 				});
 
 		// Set up the user interaction to manually show or hide the system UI.
@@ -116,6 +158,9 @@ public class MainActivity extends Activity {
 		// while interacting with the UI.
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
+		
+		//initializing web app stuff
+		initWebApp();
 	}
 
 	@Override
