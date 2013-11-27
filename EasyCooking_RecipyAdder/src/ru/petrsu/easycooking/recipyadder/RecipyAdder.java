@@ -1,25 +1,56 @@
 package ru.petrsu.easycooking.recipyadder;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JButton;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.HashSet;
+import java.util.LinkedList;
 
-public class RecipyAdder extends JFrame {
+public class RecipyAdder extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
 	Connection c;
 	Statement stmt;
+	
+	JTextField recNameTF;
+	JTextArea recDescrTA;
+	HashSet<JTextField> recIngrSet;
+	LinkedList<JTextField> recIngrList;
+	JScrollPane descrScrollPane;
+	JButton addButton;
+	JButton addAllButton;
+	JButton addIngrButton;
+	JButton deleteIngrButton;
 
 	public RecipyAdder() {
 		super("EasyCooking RecipyAdder");
+		
+		c = null;
+		stmt = null;
+		
+		recIngrList = new LinkedList<JTextField>();
+		
+		recNameTF = new JTextField();
+		recDescrTA = new JTextArea();
+		descrScrollPane = new JScrollPane(recDescrTA);
+		recIngrList.addLast(new JTextField());
+		
+		addButton = new JButton();
+		addAllButton = new JButton();
+		addIngrButton = new JButton();
+		deleteIngrButton = new JButton();
 	}
 
 	public void init() {
 		setBounds(100, 100, 400, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		c = null;
-		stmt = null;
 	}
 
 	public static void main(String[] args) {
@@ -118,5 +149,11 @@ public class RecipyAdder extends JFrame {
 		}
 		
 		System.out.println("Database structure succesfully initialized");
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		
+		
 	}
 }
