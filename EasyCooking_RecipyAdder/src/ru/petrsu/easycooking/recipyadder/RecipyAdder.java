@@ -24,12 +24,27 @@ public class RecipyAdder extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Connection to database
+	 */
 	Connection c;
+	/**
+	 * Statement of database
+	 */
 	Statement stmt;
 	
+	/**
+	 * Factory for XML proceeding
+	 */
+	DocumentBuilderFactory dbFactory;
+	/**
+	 * Builder for XML proceeding
+	 */
+	DocumentBuilder dBuilder;
+	
+	//interface
 	JTextField recNameTF;
 	JTextArea recDescrTA;
-	HashSet<JTextField> recIngrSet;
 	LinkedList<JTextField> recIngrList;
 	JScrollPane descrScrollPane;
 	JButton addButton;
@@ -37,12 +52,24 @@ public class RecipyAdder extends JFrame implements ActionListener {
 	JButton addIngrButton;
 	JButton deleteIngrButton;
 
+	/**
+	 * Main constructor
+	 */
 	public RecipyAdder() {
 		super("EasyCooking RecipyAdder");
 		
 		c = null;
 		stmt = null;
 		
+		dbFactory = DocumentBuilderFactory.newInstance();
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		}
+		
+		//initializing interface
 		recIngrList = new LinkedList<JTextField>();
 		
 		recNameTF = new JTextField();
@@ -56,11 +83,18 @@ public class RecipyAdder extends JFrame implements ActionListener {
 		deleteIngrButton = new JButton();
 	}
 
+	/**
+	 * App initialization
+	 */
 	public void init() {
 		setBounds(100, 100, 400, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
+	/**
+	 * App working
+	 * @param args - arguments 
+	 */
 	public static void main(String[] args) {
 		RecipyAdder app = new RecipyAdder();
 		app.init();
@@ -72,6 +106,11 @@ public class RecipyAdder extends JFrame implements ActionListener {
 		app.closeDB();
 	}
 
+	/**
+	 * Opens database
+	 * @return true If database already exists
+	 * @return false If database file not found
+	 */
 	private boolean openDB() {
 		System.out.println("Connecting to database");
 		int count = 0;
@@ -86,6 +125,7 @@ public class RecipyAdder extends JFrame implements ActionListener {
 		}
 		System.out.println("Connected database successfully");
 
+		//getting count of tables to check if the file is empty
 		try {
 			count = stmt.executeQuery(
 					"SELECT count(*) FROM sqlite_master WHERE type = 'table';")
@@ -95,6 +135,7 @@ public class RecipyAdder extends JFrame implements ActionListener {
 			System.exit(0);
 		}
 
+		//deciding if database is new
 		System.out.println("count = " + count);
 		if (count > 3) {
 			System.out.println("Database alredy exists");
@@ -105,6 +146,9 @@ public class RecipyAdder extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Closes database
+	 */
 	private void closeDB() {
 		System.out.println("Closing database");
 		try {
@@ -117,6 +161,9 @@ public class RecipyAdder extends JFrame implements ActionListener {
 		System.out.println("Database closed successfully");
 	}
 
+	/**
+	 * Initializes database structure
+	 */
 	private void initDB() {
 		System.out.println("Initializing database structure");
 		
@@ -159,19 +206,21 @@ public class RecipyAdder extends JFrame implements ActionListener {
 		System.out.println("Database structure succesfully initialized");
 	}
 	
+	/**
+	 * Adds recipy from XML-file to database
+	 * @param filename - XML-file name
+	 */
 	public void addFromXML(String filename){
 		File fXmlFile = new File("./res/xml/"+filename);
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = null;
 		Document doc = null;
 		try {
-			dBuilder = dbFactory.newDocumentBuilder();
 			doc = dBuilder.parse(fXmlFile);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
 		}
 		doc.getDocumentElement().normalize();
+		
 		String recName = doc.getElementsByTagName("name").item(0).getTextContent();
 		LinkedList<String> recIngr = new LinkedList<String>();
 		NodeList ingrs = doc.getElementsByTagName("ingredient");
