@@ -5,12 +5,20 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.util.HashSet;
 import java.util.LinkedList;
+
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 public class RecipyAdder extends JFrame implements ActionListener {
 
@@ -70,7 +78,7 @@ public class RecipyAdder extends JFrame implements ActionListener {
 
 		try {
 			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:test.db");
+			c = DriverManager.getConnection("jdbc:sqlite:./res/test.db");
 			stmt = c.createStatement();
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -149,6 +157,35 @@ public class RecipyAdder extends JFrame implements ActionListener {
 		}
 		
 		System.out.println("Database structure succesfully initialized");
+	}
+	
+	public void addFromXML(String filename){
+		File fXmlFile = new File("./res/xml/"+filename);
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = null;
+		Document doc = null;
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+			doc = dBuilder.parse(fXmlFile);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		doc.getDocumentElement().normalize();
+		String recName = doc.getElementsByTagName("name").item(0).getTextContent();
+		LinkedList<String> recIngr = new LinkedList<String>();
+		NodeList ingrs = doc.getElementsByTagName("ingredient");
+		for(int i = 0; i<ingrs.getLength(); i++){
+			recIngr.add(ingrs.item(i).getTextContent());
+		}
+		
+		String recDescr = doc.getElementsByTagName("description").item(0).getTextContent();
+		
+		String recTimers = "";
+		NodeList timers = doc.getElementsByTagName("timer");
+		for(int i = 0; i<timers.getLength(); i++){
+			recTimers += timers.item(i).getTextContent() + ";";
+		}
 	}
 
 	@Override
