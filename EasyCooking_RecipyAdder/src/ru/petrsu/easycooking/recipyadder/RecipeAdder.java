@@ -1,6 +1,8 @@
 package ru.petrsu.easycooking.recipyadder;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -8,19 +10,28 @@ import javax.swing.JButton;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import java.awt.CardLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.sql.*;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
 
-public class RecipyAdder extends JFrame implements ActionListener {
+public class RecipeAdder extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,21 +57,23 @@ public class RecipyAdder extends JFrame implements ActionListener {
 	JTextField recNameTF;
 	JTextArea recDescrTA;
 	LinkedList<JTextField> recIngrList;
+	LinkedList<JTextField> recTimerList;
 	JScrollPane descrScrollPane;
 	JButton addButton;
 	JButton addAllButton;
 	JButton addIngrButton;
 	JButton deleteIngrButton;
+	JButton addTimerButton;
+	JButton deleteTimerButton;
 
 	/**
 	 * Main constructor
 	 */
-	public RecipyAdder() {
-		super("EasyCooking RecipyAdder");
+	public RecipeAdder() {
+		super("EasyCooking RecipeAdder");
 		
 		c = null;
 		stmt = null;
-		
 		dbFactory = DocumentBuilderFactory.newInstance();
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
@@ -69,18 +82,67 @@ public class RecipyAdder extends JFrame implements ActionListener {
 			System.exit(0);
 		}
 		
+		initInterface();
+	
+	}
+	
+	private void initInterface(){
 		//initializing interface
 		recIngrList = new LinkedList<JTextField>();
+		recTimerList = new LinkedList<JTextField>();
 		
 		recNameTF = new JTextField();
 		recDescrTA = new JTextArea();
 		descrScrollPane = new JScrollPane(recDescrTA);
 		recIngrList.addLast(new JTextField());
+		recTimerList.addLast(new JTextField());
 		
 		addButton = new JButton();
 		addAllButton = new JButton();
 		addIngrButton = new JButton();
 		deleteIngrButton = new JButton();
+		addTimerButton = new JButton();
+		deleteTimerButton = new JButton();
+
+		JPanel panel = new JPanel();
+		JPanel timerPanel = new JPanel();
+		JPanel ingrPanel = new JPanel();
+		JPanel buttonsPanel = new JPanel();
+		
+		ingrPanel.setLayout(new FlowLayout());
+		timerPanel.setLayout(new FlowLayout());
+		panel.setLayout(new GridLayout(4,2));
+		buttonsPanel.setLayout(new FlowLayout());
+		
+		ingrPanel.add(addIngrButton);
+		ingrPanel.add(deleteIngrButton);
+		ingrPanel.add(recIngrList.getLast());
+		
+		timerPanel.add(addTimerButton);
+		timerPanel.add(deleteTimerButton);
+		timerPanel.add(recTimerList.getLast());
+		
+		buttonsPanel.add(addButton);
+		buttonsPanel.add(addAllButton);
+		
+		this.add(panel);
+		
+		panel.add(recNameTF);
+		panel.add(new JPanel());
+		panel.add(descrScrollPane);
+		panel.add(ingrPanel);
+		panel.add(timerPanel);
+		panel.add(new JPanel());
+		panel.add(buttonsPanel);
+		
+		addIngrButton.setText("+");
+		deleteIngrButton.setText("-");
+		addTimerButton.setText("+");
+		deleteTimerButton.setText("-");
+		
+		addButton.setText("Add recipe");
+		addAllButton.setText("Add from new XMLs");
+		
 	}
 
 	/**
@@ -96,13 +158,14 @@ public class RecipyAdder extends JFrame implements ActionListener {
 	 * @param args - arguments 
 	 */
 	public static void main(String[] args) {
-		RecipyAdder app = new RecipyAdder();
+		RecipeAdder app = new RecipeAdder();
 		app.init();
 		app.setVisible(true);
 
 		if (!app.openDB()) {
 			app.initDB();
 		}
+		app.createXmlFromInput();
 		app.closeDB();
 	}
 
@@ -174,26 +237,26 @@ public class RecipyAdder extends JFrame implements ActionListener {
 				+ "ingr_name TEXT NOT NULL UNIQUE);";
 		String createBayListTable = "CREATE TABLE tblBayList "
 				+ "(ingr_id INTEGER PRIMARY KEY NOT NULL REFERENCES tblIngredients (ingr_id) ON DELETE CASCADE ON UPDATE CASCADE);";
-		String createRecipiesTable = "CREATE TABLE tblRecepies "
+		String createRecipesTable = "CREATE TABLE tblRecipes "
 				+ "(rec_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ "rec_name TEXT NOT NULL, " + "rec_descr TEXT NOT NULL, "
 				+ "rec_timers TEXT);";
 		String createFavouriteListTable = "CREATE TABLE tblFavList "
-				+ "(rec_id INTEGER PRIMARY KEY NOT NULL REFERENCES tblRecepies (rec_id) ON DELETE CASCADE ON UPDATE CASCADE);";
+				+ "(rec_id INTEGER PRIMARY KEY NOT NULL REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		String createRecIngrTable = "CREATE TABLE tblRecIngr "
-				+ "(rec_id INTEGER NOT NULL UNIQUE REFERENCES tblRecepies (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
+				+ "(rec_id INTEGER NOT NULL UNIQUE REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
 				+ "ingr_id INTEGER NOT NULL UNIQUE REFERENCES tblIngredients (ingr_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		String createTagsTable = "CREATE TABLE tblTags "
 				+ "(tag_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ "tag_name TEXT NOT NULL UNIQUE);";
 		String createRecTagTable = "CREATE TABLE tblRecTag "
-				+ "(rec_id INTEGER NOT NULL UNIQUE REFERENCES tblRecepies (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
+				+ "(rec_id INTEGER NOT NULL UNIQUE REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
 				+ "tag_id INTEGER NOT NULL UNIQUE REFERENCES tblTags (tag_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		try {
 			stmt.executeUpdate(createMetadataTable);
 			stmt.executeUpdate(createIngredientsTable);
 			stmt.executeUpdate(createBayListTable);
-			stmt.executeUpdate(createRecipiesTable);
+			stmt.executeUpdate(createRecipesTable);
 			stmt.executeUpdate(createFavouriteListTable);
 			stmt.executeUpdate(createRecIngrTable);
 			stmt.executeUpdate(createTagsTable);
@@ -236,10 +299,52 @@ public class RecipyAdder extends JFrame implements ActionListener {
 			recTimers += timers.item(i).getTextContent() + ";";
 		}
 	}
+	
+	public String createXmlFromInput() {
+		if(recNameTF.getText() == "" || recDescrTA.getText() == ""){
+			return "";
+		}
+		
+		Document doc = dBuilder.newDocument();
+		Element rootElement = doc.createElement("recipe");
+		doc.appendChild(rootElement);
+		
+		Element recName = doc.createElement("name");
+		recName.setTextContent(recNameTF.getText());
+		rootElement.appendChild(recName);
+		
+		Element recDescr = doc.createElement("description");
+		recDescr.setTextContent(recDescrTA.getText());
+		rootElement.appendChild(recDescr);
+		
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = null;
+		try {
+			transformer = transformerFactory.newTransformer();
+		} catch (TransformerConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		DOMSource source = new DOMSource(doc);	
+		String filename = doc.hashCode() + ".xml";
+		StreamResult result = new StreamResult(new File("./res/xml/new/" + filename));
+		try {
+			transformer.transform(source, result);
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return filename;
+	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == addButton){
+			
+		}
 		
 	}
 }
