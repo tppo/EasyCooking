@@ -57,6 +57,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	JTextArea recDescrTA;
 	LinkedList<JTextField> recIngrList;
 	LinkedList<JTextField> recTimerList;
+	LinkedList<JTextField> recTagList;
 	JScrollPane descrScrollPane;
 	JButton addButton;
 	JButton addAllButton;
@@ -64,10 +65,13 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	JButton deleteIngrButton;
 	JButton addTimerButton;
 	JButton deleteTimerButton;
+	JButton addTagButton;
+	JButton deleteTagButton;
 	JPanel panel;
 	JPanel timerPanel;
 	JPanel ingrPanel;
 	JPanel buttonsPanel;
+	JPanel tagsPanel;
 
 	/**
 	 * Main constructor
@@ -98,9 +102,11 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		timerPanel = new JPanel();
 		ingrPanel = new JPanel();
 		buttonsPanel = new JPanel();
+		tagsPanel = new JPanel();
 
 		recIngrList = new LinkedList<JTextField>();
 		recTimerList = new LinkedList<JTextField>();
+		recTagList = new LinkedList<JTextField>();
 
 		recNameTF = new JTextField();
 		recDescrTA = new JTextArea();
@@ -109,6 +115,8 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		recTimerList.addLast(new JTextField());
 		recIngrList.getLast().setColumns(10);
 		recTimerList.getLast().setColumns(10);
+		recTagList.addLast(new JTextField());
+		recTagList.getLast().setColumns(10);
 
 		addButton = new JButton();
 		addAllButton = new JButton();
@@ -116,9 +124,12 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		deleteIngrButton = new JButton();
 		addTimerButton = new JButton();
 		deleteTimerButton = new JButton();
+		addTagButton = new JButton();
+		deleteTagButton = new JButton();
 
 		ingrPanel.setLayout(new FlowLayout());
 		timerPanel.setLayout(new FlowLayout());
+		tagsPanel.setLayout(new FlowLayout());
 		panel.setLayout(new GridLayout(3, 2));
 		buttonsPanel.setLayout(new FlowLayout());
 
@@ -129,6 +140,10 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		timerPanel.add(addTimerButton);
 		timerPanel.add(deleteTimerButton);
 		timerPanel.add(recTimerList.getLast());
+		
+		tagsPanel.add(addTagButton);
+		tagsPanel.add(deleteTagButton);
+		tagsPanel.add(recTagList.getLast());
 
 		buttonsPanel.add(addButton);
 		buttonsPanel.add(addAllButton);
@@ -136,7 +151,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		this.add(panel);
 
 		panel.add(recNameTF);
-		panel.add(new JPanel());
+		panel.add(tagsPanel);
 		panel.add(descrScrollPane);
 		panel.add(ingrPanel);
 		panel.add(timerPanel);
@@ -150,6 +165,10 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		addTimerButton.addActionListener(this);
 		deleteTimerButton.setText("-");
 		deleteTimerButton.addActionListener(this);
+		addTagButton.setText("+");
+		addTagButton.addActionListener(this);
+		deleteTagButton.setText("-");
+		deleteTagButton.addActionListener(this);
 
 		addButton.setText("Add recipe");
 		addButton.addActionListener(this);
@@ -350,6 +369,14 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				rootElement.appendChild(recTimer);
 			}
 		}
+		
+		for(JTextField tf : recTagList){
+			if(!tf.getText().isEmpty()){
+				Element recTag = doc.createElement("tag");
+				recTag.setTextContent(tf.getText());
+				rootElement.appendChild(recTag);
+			}
+		}
 
 		DOMSource source = new DOMSource(doc);
 		String filename = doc.hashCode() + ".xml";
@@ -371,35 +398,38 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			recIngrList.addLast(new JTextField());
 			recIngrList.getLast().setColumns(10);
 			ingrPanel.add(recIngrList.getLast());
-
-			this.paintComponents(getGraphics());
 		}
 		if (e.getSource() == deleteIngrButton) {
 			if (recIngrList.size() > 1) {
 				ingrPanel.remove(recIngrList.getLast());
 				recIngrList.removeLast();
-
-				this.paintComponents(getGraphics());
 			}
 		}
 		if (e.getSource() == addTimerButton) {
 			recTimerList.addLast(new JTextField());
 			recTimerList.getLast().setColumns(10);
 			timerPanel.add(recTimerList.getLast());
-
-			this.paintComponents(getGraphics());
 		}
 		if (e.getSource() == deleteTimerButton) {
 			if (recTimerList.size() > 1) {
 				timerPanel.remove(recTimerList.getLast());
 				recTimerList.removeLast();
-
-				this.paintComponents(getGraphics());
+			}
+		}
+		if (e.getSource() == addTagButton) {
+			recTagList.addLast(new JTextField());
+			recTagList.getLast().setColumns(10);
+			tagsPanel.add(recTagList.getLast());
+		}
+		if (e.getSource() == deleteTagButton) {
+			if (recTagList.size() > 1) {
+				tagsPanel.remove(recTagList.getLast());
+				recTagList.removeLast();
 			}
 		}
 		if (e.getSource() == addButton) {
 			createXmlFromInput();
 		}
-
+		this.paintComponents(getGraphics());
 	}
 }
