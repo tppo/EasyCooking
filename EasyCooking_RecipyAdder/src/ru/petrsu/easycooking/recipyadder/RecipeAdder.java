@@ -48,6 +48,9 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 * Builder for XML proceeding
 	 */
 	DocumentBuilder dBuilder;
+	
+	TransformerFactory transformerFactory;
+	Transformer transformer;
 
 	// interface
 	JTextField recNameTF;
@@ -75,12 +78,15 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		c = null;
 		stmt = null;
 		dbFactory = DocumentBuilderFactory.newInstance();
+		transformerFactory = TransformerFactory.newInstance();
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
+			transformer = transformerFactory.newTransformer();
+		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
 			System.exit(0);
 		}
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
 		initInterface();
 
@@ -173,7 +179,6 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		if (!app.openDB()) {
 			app.initDB();
 		}
-		app.createXmlFromInput();
 		app.closeDB();
 	}
 
@@ -314,7 +319,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	}
 
 	public String createXmlFromInput() {
-		if (recNameTF.getText() == "" || recDescrTA.getText() == "") {
+		if (recNameTF.getText().isEmpty() || recDescrTA.getText().isEmpty()) {
 			return "";
 		}
 
@@ -329,18 +334,23 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		Element recDescr = doc.createElement("description");
 		recDescr.setTextContent(recDescrTA.getText());
 		rootElement.appendChild(recDescr);
-
-		TransformerFactory transformerFactory = TransformerFactory
-				.newInstance();
-		Transformer transformer = null;
-		try {
-			transformer = transformerFactory.newTransformer();
-		} catch (TransformerConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		for(JTextField tf : recIngrList){
+			if(!tf.getText().isEmpty()){
+				Element recIngr = doc.createElement("ingredient");
+				recIngr.setTextContent(tf.getText());
+				rootElement.appendChild(recIngr);
+			}
+		}
+			
+		for(JTextField tf : recTimerList){
+			if(!tf.getText().isEmpty()){
+				Element recTimer = doc.createElement("timer");
+				recTimer.setTextContent(tf.getText());
+				rootElement.appendChild(recTimer);
+			}
 		}
 
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		DOMSource source = new DOMSource(doc);
 		String filename = doc.hashCode() + ".xml";
 		StreamResult result = new StreamResult(new File("./res/xml/new/"
