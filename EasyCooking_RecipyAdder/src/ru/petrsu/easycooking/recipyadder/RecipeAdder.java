@@ -1,6 +1,5 @@
 package ru.petrsu.easycooking.recipyadder;
 
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,10 +17,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import java.awt.CardLayout;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -65,6 +61,10 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	JButton deleteIngrButton;
 	JButton addTimerButton;
 	JButton deleteTimerButton;
+	JPanel panel;
+	JPanel timerPanel;
+	JPanel ingrPanel;
+	JPanel buttonsPanel;
 
 	/**
 	 * Main constructor
@@ -88,6 +88,11 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	
 	private void initInterface(){
 		//initializing interface
+		panel = new JPanel();
+		timerPanel = new JPanel();
+		ingrPanel = new JPanel();
+		buttonsPanel = new JPanel();
+		
 		recIngrList = new LinkedList<JTextField>();
 		recTimerList = new LinkedList<JTextField>();
 		
@@ -96,6 +101,8 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		descrScrollPane = new JScrollPane(recDescrTA);
 		recIngrList.addLast(new JTextField());
 		recTimerList.addLast(new JTextField());
+		recIngrList.getLast().setColumns(10);
+		recTimerList.getLast().setColumns(10);
 		
 		addButton = new JButton();
 		addAllButton = new JButton();
@@ -103,11 +110,6 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		deleteIngrButton = new JButton();
 		addTimerButton = new JButton();
 		deleteTimerButton = new JButton();
-
-		JPanel panel = new JPanel();
-		JPanel timerPanel = new JPanel();
-		JPanel ingrPanel = new JPanel();
-		JPanel buttonsPanel = new JPanel();
 		
 		ingrPanel.setLayout(new FlowLayout());
 		timerPanel.setLayout(new FlowLayout());
@@ -136,11 +138,16 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		panel.add(buttonsPanel);
 		
 		addIngrButton.setText("+");
+		addIngrButton.addActionListener(this);
 		deleteIngrButton.setText("-");
+		deleteIngrButton.addActionListener(this);
 		addTimerButton.setText("+");
+		addTimerButton.addActionListener(this);
 		deleteTimerButton.setText("-");
+		deleteTimerButton.addActionListener(this);
 		
 		addButton.setText("Add recipe");
+		addButton.addActionListener(this);
 		addAllButton.setText("Add from new XMLs");
 		
 	}
@@ -342,8 +349,35 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == addButton){
+		if(e.getSource() == addIngrButton){
+			recIngrList.addLast(new JTextField());
+			recIngrList.getLast().setColumns(10);
+			ingrPanel.add(recIngrList.getLast());
 			
+			this.paintComponents(getGraphics());
+		}
+		if(e.getSource() == deleteIngrButton){
+			if(recIngrList.size()>1){
+				ingrPanel.remove(recIngrList.getLast());
+				recIngrList.removeLast();
+				
+				this.paintComponents(getGraphics());
+			}
+		}
+		if(e.getSource() == addTimerButton){
+			recTimerList.addLast(new JTextField());
+			recTimerList.getLast().setColumns(10);
+			timerPanel.add(recTimerList.getLast());
+			
+			this.paintComponents(getGraphics());
+		}
+		if(e.getSource() == deleteTimerButton){
+			if(recTimerList.size()>1){
+				timerPanel.remove(recTimerList.getLast());
+				recTimerList.removeLast();
+				
+				this.paintComponents(getGraphics());
+			}
 		}
 		
 	}
