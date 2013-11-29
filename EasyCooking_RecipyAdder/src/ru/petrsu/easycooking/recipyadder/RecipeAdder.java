@@ -48,7 +48,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 * Builder for XML proceeding
 	 */
 	DocumentBuilder dBuilder;
-	
+
 	TransformerFactory transformerFactory;
 	Transformer transformer;
 
@@ -140,7 +140,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		timerPanel.add(addTimerButton);
 		timerPanel.add(deleteTimerButton);
 		timerPanel.add(recTimerList.getLast());
-		
+
 		tagsPanel.add(addTagButton);
 		tagsPanel.add(deleteTagButton);
 		tagsPanel.add(recTagList.getLast());
@@ -198,7 +198,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		if (!app.openDB()) {
 			app.initDB();
 		}
-		app.closeDB();
+		// app.closeDB();
 	}
 
 	/**
@@ -272,13 +272,13 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				+ "(ingr_id INTEGER PRIMARY KEY NOT NULL REFERENCES tblIngredients (ingr_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		String createRecipesTable = "CREATE TABLE tblRecipes "
 				+ "(rec_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
-				+ "rec_name TEXT NOT NULL, " + "rec_descr TEXT NOT NULL, "
-				+ "rec_timers TEXT);";
+				+ "rec_name TEXT UNIQUE NOT NULL, "
+				+ "rec_descr TEXT NOT NULL, " + "rec_timers TEXT);";
 		String createFavouriteListTable = "CREATE TABLE tblFavList "
 				+ "(rec_id INTEGER PRIMARY KEY NOT NULL REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		String createRecIngrTable = "CREATE TABLE tblRecIngr "
-				+ "(rec_id INTEGER NOT NULL UNIQUE REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
-				+ "ingr_id INTEGER NOT NULL UNIQUE REFERENCES tblIngredients (ingr_id) ON DELETE CASCADE ON UPDATE CASCADE);";
+				+ "(rec_id INTEGER NOT NULL REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
+				+ "ingr_id INTEGER NOT NULL REFERENCES tblIngredients (ingr_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		String createTagsTable = "CREATE TABLE tblTags "
 				+ "(tag_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ "tag_name TEXT NOT NULL UNIQUE);";
@@ -303,13 +303,13 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * Adds recipy from XML-file to database
+	 * Adds recipe from XML-file to database
 	 * 
 	 * @param filename
 	 *            - XML-file name
 	 */
 	public void addFromXML(String filename) {
-		File fXmlFile = new File("./res/xml/" + filename);
+		File fXmlFile = new File("./res/xml/new/" + filename);
 		Document doc = null;
 		try {
 			doc = dBuilder.parse(fXmlFile);
@@ -319,13 +319,11 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		}
 		doc.getDocumentElement().normalize();
 
+		int recId = -1;
+		ResultSet rs = null;
+
 		String recName = doc.getElementsByTagName("name").item(0)
 				.getTextContent();
-		LinkedList<String> recIngr = new LinkedList<String>();
-		NodeList ingrs = doc.getElementsByTagName("ingredient");
-		for (int i = 0; i < ingrs.getLength(); i++) {
-			recIngr.add(ingrs.item(i).getTextContent());
-		}
 
 		String recDescr = doc.getElementsByTagName("description").item(0)
 				.getTextContent();
@@ -333,8 +331,120 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		String recTimers = "";
 		NodeList timers = doc.getElementsByTagName("timer");
 		for (int i = 0; i < timers.getLength(); i++) {
-			recTimers += timers.item(i).getTextContent() + ";";
+			recTimers += timers.item(i).getTextContent() + "+";
 		}
+
+		LinkedList<String> recIngr = new LinkedList<String>();
+		NodeList ingrs = doc.getElementsByTagName("ingredient");
+		for (int i = 0; i < ingrs.getLength(); i++) {
+			recIngr.add(ingrs.item(i).getTextContent());
+		}
+
+		LinkedList<String> recTag = new LinkedList<String>();
+		NodeList tags = doc.getElementsByTagName("tag");
+		for (int i = 0; i < tags.getLength(); i++) {
+			recTag.add(tags.item(i).getTextContent());
+		}
+
+		String insertInRecipes = "INSERT INTO tblRecipes (rec_name, rec_descr, rec_timers) "
+				+ "VALUES (\""
+				+ recName
+				+ "\", \""
+				+ recDescr
+				+ "\", \""
+				+ recTimers + "\");";
+
+		try {
+			stmt.executeUpdate(insertInRecipes);
+			recId = stmt.executeQuery(
+					"SELECT rec_id FROM tblRecipes WHERE rec_name = \""
+							+ recName + "\";").getInt(1);
+		} catch (SQLException e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		}
+
+		for (String str : recIngr) {
+			String selectIngr = "SELECT COUNT(*) FROM tblIngredients WHERE ingr_name = \""
+					+ str + "\";";
+			String selectIngrId = "SELECT ingr_id FROM tblIngredients WHERE ingr_name = \""
+					+ str + "\";";
+			int count = -1;
+			int ingrId = -1;
+			try {
+				rs = stmt.executeQuery(selectIngr);
+				count = rs.getInt(1);
+				rs.close();
+				System.out.println("size = " + count);
+				if (count != 0) {
+					rs = stmt.executeQuery(selectIngrId);
+					ingrId = rs.getInt(1);
+					rs.close();
+				}
+			} catch (SQLException e) {
+				System.err.println(e.getClass().getName() + ": "
+						+ e.getMessage());
+				System.exit(0);
+			}
+			System.out.println("ingrid = " + ingrId);
+			try {
+				if (ingrId == -1) {
+					stmt.executeUpdate("INSERT INTO tblIngredients (ingr_name) VALUES (\""
+							+ str + "\");");
+					rs = stmt.executeQuery(selectIngrId);
+					ingrId = rs.getInt(1);
+					rs.close();
+				}
+				stmt.executeUpdate("INSERT INTO tblRecIngr (rec_id, ingr_id) VALUES ("
+						+ recId + ", " + ingrId + ");");
+			} catch (SQLException e) {
+				System.err.println(e.getClass().getName() + ": "
+						+ e.getMessage());
+				System.exit(0);
+			}
+		}
+
+		for (String str : recTag) {
+			String selectTag = "SELECT COUNT(*) FROM tblTags WHERE tag_name = \""
+					+ str + "\";";
+			String selectTagId = "SELECT tag_id FROM tblTags WHERE tag_name = \""
+					+ str + "\";";
+			int count = -1;
+			int tagId = -1;
+			try {
+				rs = stmt.executeQuery(selectTag);
+				count = rs.getInt(1);
+				rs.close();
+				System.out.println("size = " + count);
+				if (count != 0) {
+					rs = stmt.executeQuery(selectTagId);
+					tagId = rs.getInt(1);
+					rs.close();
+				}
+			} catch (SQLException e) {
+				System.err.println(e.getClass().getName() + ": "
+						+ e.getMessage());
+				System.exit(0);
+			}
+			System.out.println("tagid = " + tagId);
+			try {
+				if (tagId == -1) {
+					stmt.executeUpdate("INSERT INTO tblTags (tag_name) VALUES (\""
+							+ str + "\");");
+					rs = stmt.executeQuery(selectTagId);
+					tagId = rs.getInt(1);
+					rs.close();
+				}
+				stmt.executeUpdate("INSERT INTO tblRecTag (rec_id, tag_id) VALUES ("
+						+ recId + ", " + tagId + ");");
+
+			} catch (SQLException e) {
+				System.err.println(e.getClass().getName() + ": "
+						+ e.getMessage());
+				System.exit(0);
+			}
+		}
+
 	}
 
 	public String createXmlFromInput() {
@@ -353,25 +463,25 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		Element recDescr = doc.createElement("description");
 		recDescr.setTextContent(recDescrTA.getText());
 		rootElement.appendChild(recDescr);
-		
-		for(JTextField tf : recIngrList){
-			if(!tf.getText().isEmpty()){
+
+		for (JTextField tf : recIngrList) {
+			if (!tf.getText().isEmpty()) {
 				Element recIngr = doc.createElement("ingredient");
 				recIngr.setTextContent(tf.getText());
 				rootElement.appendChild(recIngr);
 			}
 		}
-			
-		for(JTextField tf : recTimerList){
-			if(!tf.getText().isEmpty()){
+
+		for (JTextField tf : recTimerList) {
+			if (!tf.getText().isEmpty()) {
 				Element recTimer = doc.createElement("timer");
 				recTimer.setTextContent(tf.getText());
 				rootElement.appendChild(recTimer);
 			}
 		}
-		
-		for(JTextField tf : recTagList){
-			if(!tf.getText().isEmpty()){
+
+		for (JTextField tf : recTagList) {
+			if (!tf.getText().isEmpty()) {
 				Element recTag = doc.createElement("tag");
 				recTag.setTextContent(tf.getText());
 				rootElement.appendChild(recTag);
@@ -428,7 +538,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			}
 		}
 		if (e.getSource() == addButton) {
-			createXmlFromInput();
+			addFromXML(createXmlFromInput());
 		}
 		this.paintComponents(getGraphics());
 	}
