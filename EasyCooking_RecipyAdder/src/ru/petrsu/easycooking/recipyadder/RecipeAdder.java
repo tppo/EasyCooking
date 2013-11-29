@@ -9,10 +9,8 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -22,6 +20,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.sql.*;
 import java.util.LinkedList;
@@ -117,13 +117,14 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 		recNameTF = new JTextField();
 		recDescrTA = new JTextArea();
-		descrScrollPane = new JScrollPane(recDescrTA);
 		recIngrList.addLast(new JTextField());
 		recTimerList.addLast(new JTextField());
 		recIngrList.getLast().setColumns(10);
 		recTimerList.getLast().setColumns(10);
 		recTagList.addLast(new JTextField());
 		recTagList.getLast().setColumns(10);
+		
+		descrScrollPane = new JScrollPane(recDescrTA);
 
 		addButton = new JButton();
 		addAllButton = new JButton();
@@ -196,7 +197,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 */
 	public void init() {
 		setBounds(100, 100, 400, 400);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		File xmlDir = new File("./res/xml/");
 		File resDir = new File("./res/");
 		File newDir = new File("./res/xml/new");
@@ -213,6 +214,16 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		if(!oldDir.exists()){
 			oldDir.mkdir();
 		}
+		
+	    this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	    this.addWindowListener(new WindowAdapter() {
+	        @Override
+	        public void windowClosing(WindowEvent event) {
+	        	closeDB();
+	        	dispose();
+	            System.exit(0);
+	        }
+	    });
 	}
 
 	/**
@@ -229,7 +240,6 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		if (!app.openDB()) {
 			app.initDB();
 		}
-		// app.closeDB();
 	}
 
 	/**
