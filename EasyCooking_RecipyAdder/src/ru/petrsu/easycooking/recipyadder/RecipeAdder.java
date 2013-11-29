@@ -1,6 +1,7 @@
 package ru.petrsu.easycooking.recipyadder;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -72,7 +73,10 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	JPanel ingrPanel;
 	JPanel buttonsPanel;
 	JPanel tagsPanel;
-
+	JLabel ingrLabel;
+	JLabel tagLabel;
+	JLabel timerLabel;
+	
 	/**
 	 * Main constructor
 	 */
@@ -129,6 +133,10 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		deleteTimerButton = new JButton();
 		addTagButton = new JButton();
 		deleteTagButton = new JButton();
+		
+		ingrLabel = new JLabel("Ingredients");
+		tagLabel = new JLabel("Tags");
+		timerLabel = new JLabel("Timers");
 
 		ingrPanel.setLayout(new FlowLayout());
 		timerPanel.setLayout(new FlowLayout());
@@ -136,14 +144,17 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		panel.setLayout(new GridLayout(3, 2));
 		buttonsPanel.setLayout(new FlowLayout());
 
+		ingrPanel.add(ingrLabel);
 		ingrPanel.add(addIngrButton);
 		ingrPanel.add(deleteIngrButton);
 		ingrPanel.add(recIngrList.getLast());
 
+		timerPanel.add(timerLabel);
 		timerPanel.add(addTimerButton);
 		timerPanel.add(deleteTimerButton);
 		timerPanel.add(recTimerList.getLast());
 
+		tagsPanel.add(tagLabel);
 		tagsPanel.add(addTagButton);
 		tagsPanel.add(deleteTagButton);
 		tagsPanel.add(recTagList.getLast());
@@ -186,6 +197,22 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	public void init() {
 		setBounds(100, 100, 400, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		File xmlDir = new File("./res/xml/");
+		File resDir = new File("./res/");
+		File newDir = new File("./res/xml/new");
+		File oldDir = new File("./res/xml/old");
+		if(!resDir.exists()){
+			resDir.mkdir();
+		}
+		if(!xmlDir.exists()){
+			xmlDir.mkdir();
+		}
+		if(!newDir.exists()){
+			newDir.mkdir();
+		}
+		if(!oldDir.exists()){
+			oldDir.mkdir();
+		}
 	}
 
 	/**
