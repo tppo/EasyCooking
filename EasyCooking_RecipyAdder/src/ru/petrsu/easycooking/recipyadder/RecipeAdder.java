@@ -324,8 +324,8 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				+ "(tag_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ "tag_name TEXT NOT NULL UNIQUE);";
 		String createRecTagTable = "CREATE TABLE tblRecTag "
-				+ "(rec_id INTEGER NOT NULL UNIQUE REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
-				+ "tag_id INTEGER NOT NULL UNIQUE REFERENCES tblTags (tag_id) ON DELETE CASCADE ON UPDATE CASCADE);";
+				+ "(rec_id INTEGER NOT NULL REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
+				+ "tag_id INTEGER NOT NULL REFERENCES tblTags (tag_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		try {
 			stmt.executeUpdate(createMetadataTable);
 			stmt.executeUpdate(createIngredientsTable);
