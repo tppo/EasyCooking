@@ -96,6 +96,9 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * Initializes interface structure 
+	 */
 	private void initInterface() {
 		// initializing interface
 		panel = new JPanel();
@@ -448,6 +451,10 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * Makes XML from input
+	 * @return Name of new XML-file
+	 */
 	public String createXmlFromInput() {
 		if (recNameTF.getText().isEmpty() || recDescrTA.getText().isEmpty()) {
 			return "";
