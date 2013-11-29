@@ -173,6 +173,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		addButton.setText("Add recipe");
 		addButton.addActionListener(this);
 		addAllButton.setText("Add from new XMLs");
+		addAllButton.addActionListener(this);
 
 	}
 
@@ -495,11 +496,36 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		try {
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
 		}
 
 		return filename;
+	}
+
+	/**
+	 * Moves handled XMLs to folder "old"
+	 * 
+	 * @param filename
+	 *            - Name of XML-file
+	 */
+	public void moveXML(String filename) {
+		try {
+
+			File oldFile = new File("./res/xml/new/" + filename);
+
+			if (oldFile
+					.renameTo(new File("./res/xml/old/" + oldFile.getName()))) {
+				System.out.println("The file " + filename
+						+ " was moved successfully");
+			} else {
+				System.out.println("The File was not moved.");
+			}
+
+		} catch (Exception e) {
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			System.exit(0);
+		}
 	}
 
 	@Override
@@ -538,7 +564,23 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			}
 		}
 		if (e.getSource() == addButton) {
-			addFromXML(createXmlFromInput());
+			String fname = createXmlFromInput();
+			addFromXML(fname);
+			moveXML(fname);
+		}
+		if (e.getSource() == addAllButton) {
+			LinkedList<String> l = new LinkedList<String>();
+			File[] xmlFiles = new File("./res/xml/new/").listFiles();
+
+			for (File file : xmlFiles) {
+				if (file.isFile()) {
+					l.add(file.getName());
+				}
+			}
+			for (String fname : l) {
+				addFromXML(fname);
+				moveXML(fname);
+			}
 		}
 		this.paintComponents(getGraphics());
 	}
