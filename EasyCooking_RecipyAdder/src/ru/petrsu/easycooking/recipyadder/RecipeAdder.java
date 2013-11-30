@@ -2,6 +2,7 @@ package ru.petrsu.easycooking.recipyadder;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -50,7 +51,14 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 */
 	DocumentBuilder dBuilder;
 
+	/**
+	 * Factory for document transforming
+	 */
 	TransformerFactory transformerFactory;
+	
+	/**
+	 * Document transformer
+	 */
 	Transformer transformer;
 
 	// interface
@@ -87,17 +95,19 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		stmt = null;
 		dbFactory = DocumentBuilderFactory.newInstance();
 		transformerFactory = TransformerFactory.newInstance();
+		
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
 			transformer = transformerFactory.newTransformer();
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
+		//for newlining in xml-docs
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
 		initInterface();
-
 	}
 
 	/**
@@ -258,6 +268,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			stmt = c.createStatement();
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
 		System.out.println("Connected database successfully");
@@ -269,6 +280,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 					.getInt(1);
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
 
@@ -293,6 +305,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			c.close();
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
 		System.out.println("Database closed successfully");
@@ -309,7 +322,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		String createIngredientsTable = "CREATE TABLE tblIngredients "
 				+ "(ingr_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ "ingr_name TEXT NOT NULL UNIQUE);";
-		String createBayListTable = "CREATE TABLE tblBayList "
+		String createBuyListTable = "CREATE TABLE tblBuyList "
 				+ "(ingr_id INTEGER PRIMARY KEY NOT NULL REFERENCES tblIngredients (ingr_id) ON DELETE CASCADE ON UPDATE CASCADE);";
 		String createRecipesTable = "CREATE TABLE tblRecipes "
 				+ "(rec_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
@@ -329,7 +342,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		try {
 			stmt.executeUpdate(createMetadataTable);
 			stmt.executeUpdate(createIngredientsTable);
-			stmt.executeUpdate(createBayListTable);
+			stmt.executeUpdate(createBuyListTable);
 			stmt.executeUpdate(createRecipesTable);
 			stmt.executeUpdate(createFavouriteListTable);
 			stmt.executeUpdate(createRecIngrTable);
@@ -337,6 +350,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			stmt.executeUpdate(createRecTagTable);
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
 
@@ -356,6 +370,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			doc = dBuilder.parse(fXmlFile);
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
 		doc.getDocumentElement().normalize();
@@ -402,6 +417,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 							+ recName + "\";").getInt(1);
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
 
@@ -425,6 +441,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			} catch (SQLException e) {
 				System.err.println(e.getClass().getName() + ": "
 						+ e.getMessage());
+				JOptionPane.showMessageDialog(this,e.getMessage());
 				System.exit(0);
 			}
 			System.out.println("ingrid = " + ingrId);
@@ -441,6 +458,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			} catch (SQLException e) {
 				System.err.println(e.getClass().getName() + ": "
 						+ e.getMessage());
+				JOptionPane.showMessageDialog(this,e.getMessage());
 				System.exit(0);
 			}
 		}
@@ -465,6 +483,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			} catch (SQLException e) {
 				System.err.println(e.getClass().getName() + ": "
 						+ e.getMessage());
+				JOptionPane.showMessageDialog(this,e.getMessage());
 				System.exit(0);
 			}
 			System.out.println("tagid = " + tagId);
@@ -482,6 +501,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			} catch (SQLException e) {
 				System.err.println(e.getClass().getName() + ": "
 						+ e.getMessage());
+				JOptionPane.showMessageDialog(this,e.getMessage());
 				System.exit(0);
 			}
 		}
@@ -494,6 +514,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 */
 	public String createXmlFromInput() {
 		if (recNameTF.getText().isEmpty() || recDescrTA.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Empty name or descr fields");
 			return "";
 		}
 
@@ -568,6 +589,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(this,e.getMessage());
 			System.exit(0);
 		}
 	}
