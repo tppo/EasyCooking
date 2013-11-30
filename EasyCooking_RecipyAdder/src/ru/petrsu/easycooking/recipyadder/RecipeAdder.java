@@ -55,7 +55,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 * Factory for document transforming
 	 */
 	TransformerFactory transformerFactory;
-	
+
 	/**
 	 * Document transformer
 	 */
@@ -84,7 +84,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	JLabel ingrLabel;
 	JLabel tagLabel;
 	JLabel timerLabel;
-	
+
 	/**
 	 * Main constructor
 	 */
@@ -95,23 +95,23 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		stmt = null;
 		dbFactory = DocumentBuilderFactory.newInstance();
 		transformerFactory = TransformerFactory.newInstance();
-		
+
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
 			transformer = transformerFactory.newTransformer();
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
+			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
-		//for newlining in xml-docs
+		// for newlining in xml-docs
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
 		initInterface();
 	}
 
 	/**
-	 * Initializes interface structure 
+	 * Initializes interface structure
 	 */
 	private void initInterface() {
 		// initializing interface
@@ -127,13 +127,14 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 		recNameTF = new JTextField();
 		recDescrTA = new JTextArea();
+
 		recIngrList.addLast(new JTextField());
 		recTimerList.addLast(new JTextField());
+		recTagList.addLast(new JTextField());
 		recIngrList.getLast().setColumns(10);
 		recTimerList.getLast().setColumns(10);
-		recTagList.addLast(new JTextField());
 		recTagList.getLast().setColumns(10);
-		
+
 		descrScrollPane = new JScrollPane(recDescrTA);
 
 		addButton = new JButton();
@@ -144,7 +145,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		deleteTimerButton = new JButton();
 		addTagButton = new JButton();
 		deleteTagButton = new JButton();
-		
+
 		ingrLabel = new JLabel("Ingredients");
 		tagLabel = new JLabel("Tags");
 		timerLabel = new JLabel("Timers");
@@ -183,21 +184,22 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		panel.add(buttonsPanel);
 
 		addIngrButton.setText("+");
-		addIngrButton.addActionListener(this);
 		deleteIngrButton.setText("-");
-		deleteIngrButton.addActionListener(this);
 		addTimerButton.setText("+");
-		addTimerButton.addActionListener(this);
 		deleteTimerButton.setText("-");
-		deleteTimerButton.addActionListener(this);
 		addTagButton.setText("+");
-		addTagButton.addActionListener(this);
 		deleteTagButton.setText("-");
+
+		addIngrButton.addActionListener(this);
+		deleteIngrButton.addActionListener(this);
+		addTimerButton.addActionListener(this);
+		deleteTimerButton.addActionListener(this);
+		addTagButton.addActionListener(this);
 		deleteTagButton.addActionListener(this);
 
 		addButton.setText("Add recipe");
-		addButton.addActionListener(this);
 		addAllButton.setText("Add from new XMLs");
+		addButton.addActionListener(this);
 		addAllButton.addActionListener(this);
 
 	}
@@ -207,33 +209,35 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 */
 	public void init() {
 		setBounds(100, 100, 400, 400);
-		
+
 		File xmlDir = new File("./res/xml/");
 		File resDir = new File("./res/");
 		File newDir = new File("./res/xml/new");
 		File oldDir = new File("./res/xml/old");
-		if(!resDir.exists()){
+
+		if (!resDir.exists()) {
 			resDir.mkdir();
 		}
-		if(!xmlDir.exists()){
+		if (!xmlDir.exists()) {
 			xmlDir.mkdir();
 		}
-		if(!newDir.exists()){
+		if (!newDir.exists()) {
 			newDir.mkdir();
 		}
-		if(!oldDir.exists()){
+		if (!oldDir.exists()) {
 			oldDir.mkdir();
 		}
-		
-	    this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-	    this.addWindowListener(new WindowAdapter() {
-	        @Override
-	        public void windowClosing(WindowEvent event) {
-	        	closeDB();
-	        	dispose();
-	            System.exit(0);
-	        }
-	    });
+
+		// Operation on close
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				closeDB();
+				dispose();// close frame
+				System.exit(0);
+			}
+		});
 	}
 
 	/**
@@ -263,26 +267,23 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		int count = 0;
 
 		try {
+			// connection to database
 			Class.forName("org.sqlite.JDBC");
 			c = DriverManager.getConnection("jdbc:sqlite:./res/test.db");
 			stmt = c.createStatement();
-		} catch (Exception e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
-			System.exit(0);
-		}
-		System.out.println("Connected database successfully");
 
-		// getting count of tables to check if the file is empty
-		try {
+			// counting tables in database
 			count = stmt.executeQuery(
 					"SELECT count(*) FROM sqlite_master WHERE type = 'table';")
 					.getInt(1);
+
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
+			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
+
+		System.out.println("Connected database successfully");
 
 		// deciding if database is new
 		System.out.println("count = " + count);
@@ -305,7 +306,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			c.close();
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
+			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
 		System.out.println("Database closed successfully");
@@ -350,7 +351,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			stmt.executeUpdate(createRecTagTable);
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
+			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
 
@@ -366,17 +367,19 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	public void addFromXML(String filename) {
 		File fXmlFile = new File("./res/xml/new/" + filename);
 		Document doc = null;
+		int recId = -1;
+		ResultSet rs = null;
+
+		// doc parsing
 		try {
 			doc = dBuilder.parse(fXmlFile);
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
+			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
-		doc.getDocumentElement().normalize();
 
-		int recId = -1;
-		ResultSet rs = null;
+		doc.getDocumentElement().normalize(); // doc normalization
 
 		String recName = doc.getElementsByTagName("name").item(0)
 				.getTextContent();
@@ -384,6 +387,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		String recDescr = doc.getElementsByTagName("description").item(0)
 				.getTextContent();
 
+		// timers will be in one string, delimiter is "+"
 		String recTimers = "";
 		NodeList timers = doc.getElementsByTagName("timer");
 		for (int i = 0; i < timers.getLength(); i++) {
@@ -417,35 +421,33 @@ public class RecipeAdder extends JFrame implements ActionListener {
 							+ recName + "\";").getInt(1);
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
+			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
 
+		// inserting ingredients
 		for (String str : recIngr) {
 			String selectIngr = "SELECT COUNT(*) FROM tblIngredients WHERE ingr_name = \""
 					+ str + "\";";
 			String selectIngrId = "SELECT ingr_id FROM tblIngredients WHERE ingr_name = \""
 					+ str + "\";";
+
 			int count = -1;
 			int ingrId = -1;
+
 			try {
+				// Checking if ingredient already in DB
 				rs = stmt.executeQuery(selectIngr);
 				count = rs.getInt(1);
 				rs.close();
-				System.out.println("size = " + count);
+				System.out.println("ingr count = " + count);
 				if (count != 0) {
 					rs = stmt.executeQuery(selectIngrId);
 					ingrId = rs.getInt(1);
 					rs.close();
 				}
-			} catch (SQLException e) {
-				System.err.println(e.getClass().getName() + ": "
-						+ e.getMessage());
-				JOptionPane.showMessageDialog(this,e.getMessage());
-				System.exit(0);
-			}
-			System.out.println("ingrid = " + ingrId);
-			try {
+
+				// putting in if not in and making link to recipe
 				if (ingrId == -1) {
 					stmt.executeUpdate("INSERT INTO tblIngredients (ingr_name) VALUES (\""
 							+ str + "\");");
@@ -455,22 +457,27 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				}
 				stmt.executeUpdate("INSERT INTO tblRecIngr (rec_id, ingr_id) VALUES ("
 						+ recId + ", " + ingrId + ");");
+
 			} catch (SQLException e) {
 				System.err.println(e.getClass().getName() + ": "
 						+ e.getMessage());
-				JOptionPane.showMessageDialog(this,e.getMessage());
+				JOptionPane.showMessageDialog(this, e.getMessage());
 				System.exit(0);
 			}
 		}
 
+		// inserting tags
 		for (String str : recTag) {
 			String selectTag = "SELECT COUNT(*) FROM tblTags WHERE tag_name = \""
 					+ str + "\";";
 			String selectTagId = "SELECT tag_id FROM tblTags WHERE tag_name = \""
 					+ str + "\";";
+
 			int count = -1;
 			int tagId = -1;
+
 			try {
+				// checking if tag already in
 				rs = stmt.executeQuery(selectTag);
 				count = rs.getInt(1);
 				rs.close();
@@ -480,14 +487,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 					tagId = rs.getInt(1);
 					rs.close();
 				}
-			} catch (SQLException e) {
-				System.err.println(e.getClass().getName() + ": "
-						+ e.getMessage());
-				JOptionPane.showMessageDialog(this,e.getMessage());
-				System.exit(0);
-			}
-			System.out.println("tagid = " + tagId);
-			try {
+				// inserting if not, making link to recipe
 				if (tagId == -1) {
 					stmt.executeUpdate("INSERT INTO tblTags (tag_name) VALUES (\""
 							+ str + "\");");
@@ -501,23 +501,25 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			} catch (SQLException e) {
 				System.err.println(e.getClass().getName() + ": "
 						+ e.getMessage());
-				JOptionPane.showMessageDialog(this,e.getMessage());
+				JOptionPane.showMessageDialog(this, e.getMessage());
 				System.exit(0);
 			}
 		}
-
 	}
 
 	/**
 	 * Makes XML from input
+	 * 
 	 * @return Name of new XML-file
 	 */
 	public String createXmlFromInput() {
+		// name and descr are required fields
 		if (recNameTF.getText().isEmpty() || recDescrTA.getText().isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Empty name or descr fields");
 			return "";
 		}
 
+		// init doc struct
 		Document doc = dBuilder.newDocument();
 		Element rootElement = doc.createElement("recipe");
 		doc.appendChild(rootElement);
@@ -530,6 +532,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		recDescr.setTextContent(recDescrTA.getText());
 		rootElement.appendChild(recDescr);
 
+		// adding all list things
 		for (JTextField tf : recIngrList) {
 			if (!tf.getText().isEmpty()) {
 				Element recIngr = doc.createElement("ingredient");
@@ -554,6 +557,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			}
 		}
 
+		// transforming and writing to file
 		DOMSource source = new DOMSource(doc);
 		String filename = doc.hashCode() + ".xml";
 		StreamResult result = new StreamResult(new File("./res/xml/new/"
@@ -576,7 +580,6 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 */
 	public void moveXML(String filename) {
 		try {
-
 			File oldFile = new File("./res/xml/new/" + filename);
 
 			if (oldFile
@@ -589,7 +592,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			JOptionPane.showMessageDialog(this,e.getMessage());
+			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
 	}
@@ -607,6 +610,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				recIngrList.removeLast();
 			}
 		}
+
 		if (e.getSource() == addTimerButton) {
 			recTimerList.addLast(new JTextField());
 			recTimerList.getLast().setColumns(10);
@@ -618,6 +622,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				recTimerList.removeLast();
 			}
 		}
+
 		if (e.getSource() == addTagButton) {
 			recTagList.addLast(new JTextField());
 			recTagList.getLast().setColumns(10);
@@ -629,6 +634,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				recTagList.removeLast();
 			}
 		}
+
 		if (e.getSource() == addButton) {
 			String fname = createXmlFromInput();
 			addFromXML(fname);
@@ -648,6 +654,9 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				moveXML(fname);
 			}
 		}
-		this.paintComponents(getGraphics());
+
+		this.paintComponents(getGraphics()); // repaint needed to display
+												// addition or deletion of text
+												// fields
 	}
 }
