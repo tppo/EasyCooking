@@ -340,6 +340,11 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		String createRecTagTable = "CREATE TABLE tblRecTag "
 				+ "(rec_id INTEGER NOT NULL REFERENCES tblRecipes (rec_id) ON DELETE CASCADE ON UPDATE CASCADE, "
 				+ "tag_id INTEGER NOT NULL REFERENCES tblTags (tag_id) ON DELETE CASCADE ON UPDATE CASCADE);";
+		
+		String createIndexIngrName = "CREATE INDEX index_ingr_name ON tblIngredients (ingr_name);";
+		String createIndexRecName = "CREATE INDEX index_rec_name ON tblRecipes (rec_name);";
+		String createIndexTagName = "CREATE INDEX index_tag_name ON tblTags (tag_name);";
+		
 		try {
 			stmt.executeUpdate(createMetadataTable);
 			stmt.executeUpdate(createIngredientsTable);
@@ -349,6 +354,9 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			stmt.executeUpdate(createRecIngrTable);
 			stmt.executeUpdate(createTagsTable);
 			stmt.executeUpdate(createRecTagTable);
+			stmt.executeUpdate(createIndexTagName);
+			stmt.executeUpdate(createIndexRecName);
+			stmt.executeUpdate(createIndexIngrName);
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
 			JOptionPane.showMessageDialog(this, e.getMessage());
