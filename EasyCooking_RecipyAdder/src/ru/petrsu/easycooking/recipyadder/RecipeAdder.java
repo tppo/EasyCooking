@@ -524,7 +524,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		// name and descr are required fields
 		if (recNameTF.getText().isEmpty() || recDescrTA.getText().isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Empty name or descr fields");
-			return "";
+			return null;
 		}
 
 		// init doc struct
@@ -645,8 +645,10 @@ public class RecipeAdder extends JFrame implements ActionListener {
 
 		if (e.getSource() == addButton) {
 			String fname = createXmlFromInput();
-			addFromXML(fname);
-			moveXML(fname);
+			if(fname!=null){
+				addFromXML(fname);
+				moveXML(fname);
+			}
 		}
 		if (e.getSource() == addAllButton) {
 			LinkedList<String> l = new LinkedList<String>();
