@@ -16,14 +16,15 @@ public class DBProvider extends SQLiteOpenHelper {
 
 	private static String DB_PATH;
 	private static String DB_NAME = "ec.db";
-	private SQLiteDatabase ecDataBase;
+	private SQLiteDatabase ecDB;
 	private final Context appContext;
 
 	public DBProvider(Context context) {
 		super(context, DB_NAME, null, 1);
 		this.appContext = context;
-		
-		DB_PATH = appContext.getFilesDir().getPath() + "/data/ru.petrsu.easycooking/databases/";
+
+		DB_PATH = appContext.getFilesDir().getPath()
+				+ "/data/ru.petrsu.easycooking/databases/";
 	}
 
 	@Override
@@ -41,70 +42,64 @@ public class DBProvider extends SQLiteOpenHelper {
 	@Override
 	public synchronized void close() {
 
-		if (ecDataBase != null)
-			ecDataBase.close();
+		if (ecDB != null)
+			ecDB.close();
 
-		super.close();
+		super.close(); 
 
 	}
 
-	private boolean checkDataBase() {
+	private boolean checkDB() {
 		File dbFile = new File(DB_PATH + DB_NAME);
 		boolean check = dbFile.exists();
 		dbFile = null;
 		return check;
 	}
 
-	private void copyDataBase() throws IOException {
-
-		// Открываем локальную БД как входящий поток
-		InputStream myInput = appContext.getAssets().open(DB_NAME);
-
-		// Путь ко вновь созданной БД
-		String outFileName = DB_PATH + DB_NAME;
-
-		// Открываем пустую базу данных как исходящий поток
-		OutputStream myOutput = new FileOutputStream(outFileName);
-
-		// перемещаем байты из входящего файла в исходящий
-		byte[] buffer = new byte[1024];
-		int length;
-		while ((length = myInput.read(buffer)) > 0) {
-			myOutput.write(buffer, 0, length);
-		}
-
-		// закрываем потоки
-		myOutput.flush();
-		myOutput.close();
-		myInput.close();
-
-	}
-
-	private void createDataBase() throws IOException {
+	private void copyDB() throws IOException {
 
 		this.getWritableDatabase();
 
-			try {
-				copyDataBase();
-			} catch (IOException e) {
-				throw new Error("Error copying database");
+		try {
+			// Открываем локальную БД как входящий поток
+			InputStream myInput = appContext.getAssets().open(DB_NAME);
+
+			// Путь ко вновь созданной БД
+			String outFileName = DB_PATH + DB_NAME;
+
+			// Открываем пустую базу данных как исходящий поток
+			OutputStream myOutput = new FileOutputStream(outFileName);
+
+			// перемещаем байты из входящего файла в исходящий
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = myInput.read(buffer)) > 0) {
+				myOutput.write(buffer, 0, length);
 			}
+
+			// закрываем потоки
+			myOutput.flush();
+			myOutput.close();
+			myInput.close();
+		} catch (IOException e) {
+			throw new Error("Error copying database");
+		}
 	}
 
-	public void openDataBase() throws SQLException,SQLiteException {
+	public void openDB() throws SQLException, SQLiteException {
 		String myPath = DB_PATH + DB_NAME;
 
-		if (this.checkDataBase()) {
-			ecDataBase = SQLiteDatabase.openDatabase(myPath, null,
+		if (this.checkDB()) {
+			ecDB = SQLiteDatabase.openDatabase(myPath, null,
 					SQLiteDatabase.OPEN_READWRITE);
 		} else {
 			try {
-				this.createDataBase();
+				this.copyDB();
 			} catch (IOException ioe) {
 				throw new Error("Unable to create database");
 			}
 
-			ecDataBase = SQLiteDatabase.openDatabase(myPath, null,
+			ecDB = SQLiteDatabase.openDatabase(myPath, null,
 					SQLiteDatabase.OPEN_READWRITE);
 		}
 	}

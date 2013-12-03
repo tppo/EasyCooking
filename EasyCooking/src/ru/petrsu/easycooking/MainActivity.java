@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
 		dbp = new DBProvider(this);
 
 		try {
-			dbp.openDataBase();
+			dbp.openDB();
 		} catch (SQLException sqle) {
 			throw new Error(sqle.getMessage());
 		}
