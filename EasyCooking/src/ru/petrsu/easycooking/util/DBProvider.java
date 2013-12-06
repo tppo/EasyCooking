@@ -25,8 +25,9 @@ public class DBProvider extends SQLiteOpenHelper {
 		super(context, DB_NAME, null, 1);
 		this.appContext = context;
 
-		DB_PATH = appContext.getFilesDir().getPath()
-				+ "/data/ru.petrsu.easycooking/databases/";
+		//DB_PATH = appContext.getFilesDir().getPath()
+	//			+ "/data/ru.petrsu.easycooking/databases/";
+		DB_PATH = "/data/data/ru.petrsu.easycooking/databases/";
 	}
 
 	@Override
@@ -54,6 +55,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	private boolean checkDB() {
 		File dbFile = new File(DB_PATH + DB_NAME);
 		boolean check = dbFile.exists();
+		System.out.println("existence="+check);
 		dbFile = null;
 		return check;
 	}
@@ -66,7 +68,6 @@ public class DBProvider extends SQLiteOpenHelper {
 			InputStream myInput = appContext.getAssets().open(DB_NAME);
 
 			String outFileName = DB_PATH + DB_NAME;
-
 			OutputStream myOutput = new FileOutputStream(outFileName);
 
 			byte[] buffer = new byte[1024];
@@ -74,12 +75,13 @@ public class DBProvider extends SQLiteOpenHelper {
 			while ((length = myInput.read(buffer)) > 0) {
 				myOutput.write(buffer, 0, length);
 			}
-
+			System.out.println("pp");
 			myOutput.flush();
 			myOutput.close();
 			myInput.close();
+			System.out.println("ff");
 		} catch (IOException e) {
-			throw new Error("Error copying database");
+			throw new Error("Error copying database ; "+e.getMessage());
 		}
 	}
 
@@ -102,24 +104,25 @@ public class DBProvider extends SQLiteOpenHelper {
 	}
 	
 	@JavascriptInterface
-	public int[] getRecipes(){
-		String[] columns = {"rec"};
+	public String getRecipes(){
+		String[] columns = {"rec_id"};
 		Cursor c = null;
 		int count = 0;
+		String result = "";
 		try{
 			c = ecDB.query("tblRecipes", columns, null, null, null, null, null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
 		count = c.getCount();
+
+		result += count + " ";
 		if(count == 0){
-			return null;
+			return result;
 		}
-		int[] result = new int[count+1];
-		result[0] = count;
 		
 		for(int i = 0; i < count; i++){
-			result[i+1] = c.getInt(i);
+			result += c.getInt(i) + " ";
 		}
 		
 		return result;
