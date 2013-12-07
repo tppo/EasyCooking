@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -14,19 +14,44 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.webkit.JavascriptInterface;
 
+/**
+ * 
+ * @author Anton Andreev
+ *
+ */
 public class DBProvider extends SQLiteOpenHelper {
 
+	/**
+	 * Path to database in cache
+	 */
 	private static String DB_PATH;
+	
+	/**
+	 * Name of database file
+	 */
 	private static String DB_NAME = "ec.db";
+	
+	/**
+	 * EasyCooking database
+	 */
 	private SQLiteDatabase ecDB;
+	
+	/**
+	 * Application context
+	 */
 	private final Context appContext;
 
+	/**
+	 * Constructs DBProvider by application context
+	 * @param context Application context
+	 */
+	@SuppressLint("SdCardPath")
 	public DBProvider(Context context) {
 		super(context, DB_NAME, null, 1);
 		this.appContext = context;
 
 		//DB_PATH = appContext.getFilesDir().getPath()
-	//			+ "/data/ru.petrsu.easycooking/databases/";
+		//		+ "/data/ru.petrsu.easycooking/databases/";
 		DB_PATH = "/data/data/ru.petrsu.easycooking/databases/";
 	}
 
@@ -44,14 +69,16 @@ public class DBProvider extends SQLiteOpenHelper {
 
 	@Override
 	public synchronized void close() {
-
 		if (ecDB != null)
 			ecDB.close();
-
 		super.close(); 
-
 	}
 
+	/**
+	 * Checks if database already exists in cache
+	 * @return true If database exists in cache
+	 * @return false If database does not exists in cache
+	 */
 	private boolean checkDB() {
 		File dbFile = new File(DB_PATH + DB_NAME);
 		boolean check = dbFile.exists();
@@ -60,7 +87,10 @@ public class DBProvider extends SQLiteOpenHelper {
 		return check;
 	}
 
-	private void copyDB() throws IOException {
+	/**
+	 * Copies database file to cache
+	 */
+	private void copyDB() {
 
 		this.getWritableDatabase();
 
@@ -75,32 +105,28 @@ public class DBProvider extends SQLiteOpenHelper {
 			while ((length = myInput.read(buffer)) > 0) {
 				myOutput.write(buffer, 0, length);
 			}
-			System.out.println("pp");
+			
 			myOutput.flush();
 			myOutput.close();
 			myInput.close();
-			System.out.println("ff");
 		} catch (IOException e) {
-			throw new Error("Error copying database ; "+e.getMessage());
+			throw new Error("Error copying database ; " + e.getMessage());
 		}
 	}
 
-	public void openDB() throws SQLException, SQLiteException {
+	/**
+	 * Opens database file
+	 * @throws SQLiteException On opening issues
+	 */
+	public void openDB() throws SQLiteException {
 		String myPath = DB_PATH + DB_NAME;
 
-		if (this.checkDB()) {
-			ecDB = SQLiteDatabase.openDatabase(myPath, null,
-					SQLiteDatabase.OPEN_READWRITE);
-		} else {
-			try {
-				this.copyDB();
-			} catch (IOException ioe) {
-				throw new Error("Unable to create database");
-			}
-
-			ecDB = SQLiteDatabase.openDatabase(myPath, null,
-					SQLiteDatabase.OPEN_READWRITE);
-		}
+		if (!this.checkDB()) {
+			this.copyDB();
+		} 
+		
+		ecDB = SQLiteDatabase.openDatabase(myPath, null,
+				SQLiteDatabase.OPEN_READWRITE);
 	}
 	
 	/**
