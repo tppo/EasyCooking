@@ -103,23 +103,21 @@ public class DBProvider extends SQLiteOpenHelper {
 		}
 	}
 	
+	/**
+	 * getRecipes - recipes id-list getter
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
 	@JavascriptInterface
 	public String getRecipes(){
-		String[] columns = {"rec_id"};
 		Cursor c = null;
-		int count = 0;
-		String result = "";
 		try{
-			c = ecDB.query("tblRecipes", columns, null, null, null, null, null);
+			c = ecDB.query("tblRecipes", new String[]{"rec_id"}, null, null, null, null, null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
-		count = c.getCount();
+		int count = c.getCount();
 
-		result += count + " ";
-		if(count == 0){
-			return result;
-		}
+		String result = count + " ";
 		
 		for(int i = 0; i < count; i++){
 			result += c.getInt(i) + " ";
@@ -127,5 +125,97 @@ public class DBProvider extends SQLiteOpenHelper {
 		
 		return result;
 	}
+	
+	/**
+	 * getIngredients - ingredients id-list getter
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getIngredients(){
+		Cursor c = null;
+		try{
+			c = ecDB.query("tblIngredients", new String[]{"ingr_id"}, null, null, null, null, null);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+		int count = c.getCount();
 
+		String result = count + " ";
+		
+		for(int i = 0; i < count; i++){
+			result += c.getInt(i) + " ";
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * getTags - Tags id-list getter
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getTags(){
+		Cursor c = null;
+		try{
+			c = ecDB.query("tblTags", new String[]{"tag_id"}, null, null, null, null, null);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+		int count = c.getCount();
+
+		String result = count + " ";
+		
+		for(int i = 0; i < count; i++){
+			result += c.getInt(i) + " ";
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * getFavList - getter of id-list of recipes included in Favorite list
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getFavList(){
+		Cursor c = null;
+		try{
+			c = ecDB.query("tblFavList", new String[]{"rec_id"}, null, null, null, null, null);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+		int count = c.getCount();
+
+		String result = count + " ";
+		
+		for(int i = 0; i < count; i++){
+			result += c.getInt(i) + " ";
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * getBuyList - getter of id-list of ingredients included in Buy list
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getBuyList(){
+		Cursor c = null;
+		try{
+			c = ecDB.query("tblBuyList", new String[]{"ingr_id"}, null, null, null, null, null);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+		int count = c.getCount();
+
+		String result = count + " ";
+		
+		for(int i = 0; i < count; i++){
+			result += c.getInt(i) + " ";
+		}
+		
+		return result;
+	}
+	
 }
