@@ -46,6 +46,8 @@ public class DBProvider extends SQLiteOpenHelper {
 	private final String tagTableName = "tblTags";
 	private final String favTableName = "tblFavList";
 	private final String buyTableName = "tblBuyList";
+	private final String recIngrTableName = "tblRecIngr";
+	private final String recTagTableName = "tblRecTag";
 
 	/**
 	 * Constructs DBProvider by application context
@@ -278,6 +280,66 @@ public class DBProvider extends SQLiteOpenHelper {
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
+	}
+	
+	/**
+	 * getRecipeByIngredient - getter of recipes with specified ingredient 
+	 * @param ingr Ingredient name
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getRecipeByIngredient(String ingr){
+		Cursor c = null;
+		int ingrId = 0;
+		try{
+			c = ecDB.query(ingrTableName, new String[]{"ingr_id"}, "ingr_name=" + ingr, null, null, null, null);
+			if(c.getCount()>0){
+				ingrId = c.getInt(0);
+				c.close();
+				c = ecDB.query(recIngrTableName, new String[]{"rec_id"}, "ingr_id=" + ingrId, null, null, null, null);
+			}
+		} catch(SQLException e){
+			throw new Error(e.getMessage());
+		}
+		int count = c.getCount();
+
+		String result = count + " ";
+		
+		for(int i = 0; i < count; i++){
+			result += c.getInt(i) + " ";
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * getRecipeByTag - getter of recipes with specified ingredient 
+	 * @param tag Ingredient name
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getRecipeByTag(String tag){
+		Cursor c = null;
+		int tagId = 0;
+		try{
+			c = ecDB.query(tagTableName, new String[]{"tag_id"}, "tag_name=" + tag, null, null, null, null);
+			if(c.getCount()>0){
+				tagId = c.getInt(0);	
+				c.close();
+				c = ecDB.query(recTagTableName, new String[]{"rec_id"}, "tag_id=" + tagId, null, null, null, null);
+			}
+		} catch(SQLException e){
+			throw new Error(e.getMessage());
+		}
+		int count = c.getCount();
+
+		String result = count + " ";
+		
+		for(int i = 0; i < count; i++){
+			result += c.getInt(i) + " ";
+		}
+		
+		return result;
 	}
 	
 }
