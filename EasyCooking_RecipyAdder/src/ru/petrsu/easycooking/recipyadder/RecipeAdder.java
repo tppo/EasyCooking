@@ -274,7 +274,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		try {
 			// connection to database
 			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:./res/test.db");
+			c = DriverManager.getConnection("jdbc:sqlite:./res/ec.db");
 			stmt = c.createStatement();
 
 			// counting tables in database
@@ -404,7 +404,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		String recTimers = "";
 		NodeList timers = doc.getElementsByTagName("timer");
 		for (int i = 0; i < timers.getLength(); i++) {
-			recTimers += timers.item(i).getTextContent() + "+";
+			recTimers += timers.item(i).getTextContent() + " ";
 		}
 
 		LinkedList<String> recIngr = new LinkedList<String>();
