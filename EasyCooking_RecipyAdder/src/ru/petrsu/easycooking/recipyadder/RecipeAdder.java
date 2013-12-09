@@ -395,7 +395,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		doc.getDocumentElement().normalize(); // doc normalization
 
 		String recName = doc.getElementsByTagName("name").item(0)
-				.getTextContent();
+				.getTextContent().toLowerCase();
 
 		String recDescr = doc.getElementsByTagName("description").item(0)
 				.getTextContent();
@@ -410,13 +410,13 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		LinkedList<String> recIngr = new LinkedList<String>();
 		NodeList ingrs = doc.getElementsByTagName("ingredient");
 		for (int i = 0; i < ingrs.getLength(); i++) {
-			recIngr.add(ingrs.item(i).getTextContent());
+			recIngr.add(ingrs.item(i).getTextContent().toLowerCase());
 		}
 
 		LinkedList<String> recTag = new LinkedList<String>();
 		NodeList tags = doc.getElementsByTagName("tag");
 		for (int i = 0; i < tags.getLength(); i++) {
-			recTag.add(tags.item(i).getTextContent());
+			recTag.add(tags.item(i).getTextContent().toLowerCase());
 		}
 
 		String insertInRecipes = "INSERT INTO tblRecipes (rec_name, rec_descr, rec_timers) "
@@ -538,7 +538,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		doc.appendChild(rootElement);
 
 		Element recName = doc.createElement("name");
-		recName.setTextContent(recNameTF.getText());
+		recName.setTextContent(recNameTF.getText().toLowerCase());
 		rootElement.appendChild(recName);
 
 		Element recDescr = doc.createElement("description");
