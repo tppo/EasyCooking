@@ -152,6 +152,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	/**
 	 * getRecipes - recipes id-list getter
 	 * @return String that contains count of id's and list of id's with " " separator
+	 * @throws SQLException On error in query handling
 	 */
 	@JavascriptInterface
 	public String getRecipes(){
@@ -209,6 +210,65 @@ public class DBProvider extends SQLiteOpenHelper {
 	public String getBuyList(){
 		try{
 			return getIDs("tblBuyList", new String[]{"ingr_id"});
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * getName - getter of name of element with specified id
+	 * @param tbl Table with needed information
+	 * @param id_col ID-column in table
+	 * @param n_col Name-column
+	 * @param id ID of needed element
+	 * @return String Name of element
+	 * @throws SQLException On error in query handling
+	 */
+	private String getName(String tbl, String[] n_col, String id_col, String id) throws SQLException{
+		Cursor c = ecDB.query(tbl, n_col, id_col + "=" + id , null, null, null, null);
+
+		String result = "";
+		
+		if(c.getCount() > 0)
+		result = c.getString(0);
+		
+		return result;
+	}
+	
+	/**
+	 * getRecipeName - getter of name of recipe with specified id
+	 * @return String Name of recipe
+	 */
+	@JavascriptInterface
+	public String getRecipeName(String id){
+		try{
+			return getName("tblRecipes", new String[]{"rec_name"}, "rec_id", id);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * getIngredientName - getter of name of ingredient with specified id
+	 * @return String Name of ingredient
+	 */
+	@JavascriptInterface
+	public String getIngredientName(String id){
+		try{
+			return getName("tblIngredients", new String[]{"ingr_name"}, "ingr_id", id);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * getTagName - getter of name of recipe with specified id
+	 * @return String Name of tag
+	 */
+	@JavascriptInterface
+	public String getTagName(String id){
+		try{
+			return getName("tblTags", new String[]{"tag_name"}, "tag_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
