@@ -40,6 +40,12 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * Application context
 	 */
 	private final Context appContext;
+	
+	private final String recTableName = "tblRecipes";
+	private final String ingrTableName = "tblIngredients";
+	private final String tagTableName = "tblTags";
+	private final String favTableName = "tblFavList";
+	private final String buyTableName = "tblBuyList";
 
 	/**
 	 * Constructs DBProvider by application context
@@ -157,7 +163,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getRecipes(){
 		try{
-			return getIDs("tblRecipes", new String[]{"rec_id"});
+			return getIDs(recTableName, new String[]{"rec_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -170,7 +176,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getIngredients(){
 		try{
-			return getIDs("tblIngredients", new String[]{"ingr_id"});
+			return getIDs(ingrTableName, new String[]{"ingr_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -183,7 +189,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getTags(){
 		try{
-			return getIDs("tblTags", new String[]{"tag_id"});
+			return getIDs(tagTableName, new String[]{"tag_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -196,7 +202,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getFavList(){
 		try{
-			return getIDs("tblFavList", new String[]{"rec_id"});
+			return getIDs(favTableName, new String[]{"rec_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -209,7 +215,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getBuyList(){
 		try{
-			return getIDs("tblBuyList", new String[]{"ingr_id"});
+			return getIDs(buyTableName, new String[]{"ingr_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -242,7 +248,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getRecipeName(String id){
 		try{
-			return getName("tblRecipes", new String[]{"rec_name"}, "rec_id", id);
+			return getName(recTableName, new String[]{"rec_name"}, "rec_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -255,7 +261,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getIngredientName(String id){
 		try{
-			return getName("tblIngredients", new String[]{"ingr_name"}, "ingr_id", id);
+			return getName(ingrTableName, new String[]{"ingr_name"}, "ingr_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -268,7 +274,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getTagName(String id){
 		try{
-			return getName("tblTags", new String[]{"tag_name"}, "tag_id", id);
+			return getName(tagTableName, new String[]{"tag_name"}, "tag_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
