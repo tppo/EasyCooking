@@ -203,7 +203,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * @return String that contains count of id's and list of id's with " " separator
 	 */
 	@JavascriptInterface
-	public String getFavList(){
+	public String getFavouriteList(){
 		try{
 			return getIDs(favTableName, new String[]{"rec_id"});
 		} catch (SQLException e){
@@ -225,16 +225,16 @@ public class DBProvider extends SQLiteOpenHelper {
 	}
 	
 	/**
-	 * getName - getter of name of element with specified id
+	 * getColumn - getter of column for element with specified id
 	 * @param tbl Table with needed information
 	 * @param id_col ID-column in table
-	 * @param n_col Name-column
+	 * @param n_col needed column
 	 * @param id ID of needed element
-	 * @return String Name of element
+	 * @return String column for element
 	 * @throws SQLException On error in query handling
 	 */
-	private String getName(String tbl, String[] n_col, String id_col, String id) throws SQLException{
-		Cursor c = ecDB.query(tbl, n_col, id_col + "=" + id , null, null, null, null);
+	private String getColumn(String tbl, String n_col, String id_col, String id) throws SQLException{
+		Cursor c = ecDB.query(tbl, new String[]{n_col}, id_col + "=" + id , null, null, null, null);
 
 		String result = "";
 		
@@ -251,7 +251,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getRecipeName(String id){
 		try{
-			return getName(recTableName, new String[]{"rec_name"}, "rec_id", id);
+			return getColumn(recTableName, "rec_name", "rec_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -264,7 +264,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getIngredientName(String id){
 		try{
-			return getName(ingrTableName, new String[]{"ingr_name"}, "ingr_id", id);
+			return getColumn(ingrTableName, "ingr_name", "ingr_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -277,7 +277,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getTagName(String id){
 		try{
-			return getName(tagTableName, new String[]{"tag_name"}, "tag_id", id);
+			return getColumn(tagTableName, "tag_name", "tag_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -349,7 +349,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * @param id_col ID-column in table
 	 * @param n_col Name-column
 	 * @param id ID of needed element
-	 * @return String Name of element
+	 * @return Id of element or -1 on missed element
 	 * @throws SQLException On error in query handling
 	 */
 	private int getId(String tbl, String id_col, String n_col, String name) throws SQLException{
@@ -380,12 +380,40 @@ public class DBProvider extends SQLiteOpenHelper {
 	/**
 	 * getIngredientId - getter of id of tag with specified name
 	 * @param name Ingredient name
-	 * @return id of ingredient or -1 if there is no such tag
+	 * @return id of ingredient or -1 if there is no such ingredient
 	 */
 	@JavascriptInterface
 	public int getIngredientId(String name){
 		try{
 			return getId(ingrTableName, "ingr_id", "ingr_name", name.toLowerCase());
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * getDescription - getter of recipe description
+	 * @param id Recipe id
+	 * @return String with recipe description
+	 */
+	@JavascriptInterface
+	public String getDescription(String id){
+		try{
+			return getColumn(recTableName, "rec_descr", "rec_id", id);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * getTimers - getter of recipe timers
+	 * @param id Recipe id
+	 * @return String with recipe timers
+	 */
+	@JavascriptInterface
+	public String getTimers(String id){
+		try{
+			return getColumn(recTableName, "rec_timers", "rec_id", id);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
