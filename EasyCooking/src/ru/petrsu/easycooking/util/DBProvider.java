@@ -142,10 +142,11 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * getIDs - id-list getter
 	 * @param tbl Table with needed info
 	 * @param column ID-column 
+	 * @param where Selection
 	 * @return String that contains count of id's and list of id's with " " separator
 	 */
-	private String getIDs(String tbl, String[] column) throws SQLException{
-		Cursor c = ecDB.query(tbl, column, null, null, null, null, null);
+	private String getIDs(String tbl, String column, String where) throws SQLException{
+		Cursor c = ecDB.query(tbl, new String[]{column}, where, null, null, null, null);
 		
 		int count = c.getCount();
 
@@ -166,7 +167,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getRecipes(){
 		try{
-			return getIDs(recTableName, new String[]{"rec_id"});
+			return getIDs(recTableName, "rec_id", null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -179,7 +180,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getIngredients(){
 		try{
-			return getIDs(ingrTableName, new String[]{"ingr_id"});
+			return getIDs(ingrTableName, "ingr_id", null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -192,7 +193,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getTags(){
 		try{
-			return getIDs(tagTableName, new String[]{"tag_id"});
+			return getIDs(tagTableName, "tag_id", null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -205,7 +206,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getFavouriteList(){
 		try{
-			return getIDs(favTableName, new String[]{"rec_id"});
+			return getIDs(favTableName, "rec_id", null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -218,7 +219,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getBuyList(){
 		try{
-			return getIDs(buyTableName, new String[]{"ingr_id"});
+			return getIDs(buyTableName, "ingr_id", null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -419,4 +420,31 @@ public class DBProvider extends SQLiteOpenHelper {
 		}
 	}
 	
+	/**
+	 * getRecipeIngredients - getter of id-list of ingredients of recipe
+	 * @param id Recipe id
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getRecipeIngredients(String id){
+		try{
+			return getIDs(recIngrTableName, "ingr_id", "rec_id=" + id);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * getRecipeTags - getter of id-list of tags of recipe
+	 * @param id Recipe id
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getRecipeTags(String id){
+		try{
+			return getIDs(recTagTableName, "tag_id", "rec_id=" + id);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
 }
