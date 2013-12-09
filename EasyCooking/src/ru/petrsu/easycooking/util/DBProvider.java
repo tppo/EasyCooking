@@ -316,7 +316,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	
 	/**
 	 * getRecipeByTag - getter of recipes with specified ingredient 
-	 * @param tag Ingredient name
+	 * @param tag Tag name
 	 * @return String that contains count of id's and list of id's with " " separator
 	 */
 	@JavascriptInterface
@@ -345,6 +345,20 @@ public class DBProvider extends SQLiteOpenHelper {
 	}
 	
 	/**
+	 * getRecipeByName - getter of recipes with specified name 
+	 * @param name Name pattern
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getRecipeByName(String name){
+		try{
+			return getIDs(recTableName, "rec_id", "rec_name LIKE '"+name.toLowerCase()+"%'");
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
 	 * getId - getter of id of element with specified name
 	 * @param tbl Table with needed information
 	 * @param id_col ID-column in table
@@ -354,7 +368,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * @throws SQLException On error in query handling
 	 */
 	private int getId(String tbl, String id_col, String n_col, String name) throws SQLException{
-		Cursor c = ecDB.query(tbl, new String[]{id_col}, n_col + "=" + name , null, null, null, null);
+		Cursor c = ecDB.query(tbl, new String[]{id_col}, n_col + "=" + name.toLowerCase() , null, null, null, null);
 
 		int result = -1;
 		
