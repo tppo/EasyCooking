@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
@@ -292,7 +293,7 @@ public class DBProvider extends SQLiteOpenHelper {
 		Cursor c = null;
 		int ingrId = 0;
 		try{
-			c = ecDB.query(ingrTableName, new String[]{"ingr_id"}, "ingr_name=" + ingr, null, null, null, null);
+			c = ecDB.query(ingrTableName, new String[]{"ingr_id"}, "ingr_name=" + ingr.toLowerCase(), null, null, null, null);
 			if(c.getCount()>0){
 				ingrId = c.getInt(0);
 				c.close();
@@ -322,7 +323,7 @@ public class DBProvider extends SQLiteOpenHelper {
 		Cursor c = null;
 		int tagId = 0;
 		try{
-			c = ecDB.query(tagTableName, new String[]{"tag_id"}, "tag_name=" + tag, null, null, null, null);
+			c = ecDB.query(tagTableName, new String[]{"tag_id"}, "tag_name=" + tag.toLowerCase(), null, null, null, null);
 			if(c.getCount()>0){
 				tagId = c.getInt(0);	
 				c.close();
@@ -340,6 +341,54 @@ public class DBProvider extends SQLiteOpenHelper {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * getId - getter of id of element with specified name
+	 * @param tbl Table with needed information
+	 * @param id_col ID-column in table
+	 * @param n_col Name-column
+	 * @param id ID of needed element
+	 * @return String Name of element
+	 * @throws SQLException On error in query handling
+	 */
+	private int getId(String tbl, String id_col, String n_col, String name) throws SQLException{
+		Cursor c = ecDB.query(tbl, new String[]{id_col}, n_col + "=" + name , null, null, null, null);
+
+		int result = -1;
+		
+		if(c.getCount() > 0)
+		result = c.getInt(0);
+		
+		return result;
+	}
+	
+	/**
+	 * getTagId - getter of id of tag with specified name
+	 * @param name Tag name
+	 * @return id of tag or -1 if there is no such tag
+	 */
+	@JavascriptInterface
+	public int getTagId(String name){
+		try{
+			return getId(tagTableName, "tag_id", "tag_name", name.toLowerCase());
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * getIngredientId - getter of id of tag with specified name
+	 * @param name Ingredient name
+	 * @return id of ingredient or -1 if there is no such tag
+	 */
+	@JavascriptInterface
+	public int getIngredientId(String name){
+		try{
+			return getId(ingrTableName, "ingr_id", "ingr_name", name.toLowerCase());
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
 	}
 	
 }
