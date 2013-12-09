@@ -128,19 +128,16 @@ public class DBProvider extends SQLiteOpenHelper {
 		ecDB = SQLiteDatabase.openDatabase(myPath, null,
 				SQLiteDatabase.OPEN_READWRITE);
 	}
-	
+
 	/**
-	 * getRecipes - recipes id-list getter
+	 * getIDs - id-list getter
+	 * @param tbl Table with needed info
+	 * @param column ID-column 
 	 * @return String that contains count of id's and list of id's with " " separator
 	 */
-	@JavascriptInterface
-	public String getRecipes(){
-		Cursor c = null;
-		try{
-			c = ecDB.query("tblRecipes", new String[]{"rec_id"}, null, null, null, null, null);
-		} catch (SQLException e){
-			throw new Error(e.getMessage());
-		}
+	private String getIDs(String tbl, String[] column) throws SQLException{
+		Cursor c = ecDB.query(tbl, column, null, null, null, null, null);
+		
 		int count = c.getCount();
 
 		String result = count + " ";
@@ -150,6 +147,19 @@ public class DBProvider extends SQLiteOpenHelper {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * getRecipes - recipes id-list getter
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getRecipes(){
+		try{
+			return getIDs("tblRecipes", new String[]{"rec_id"});
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
 	}
 	
 	/**
@@ -158,21 +168,11 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getIngredients(){
-		Cursor c = null;
 		try{
-			c = ecDB.query("tblIngredients", new String[]{"ingr_id"}, null, null, null, null, null);
+			return getIDs("tblIngredients", new String[]{"ingr_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
-		int count = c.getCount();
-
-		String result = count + " ";
-		
-		for(int i = 0; i < count; i++){
-			result += c.getInt(i) + " ";
-		}
-		
-		return result;
 	}
 	
 	/**
@@ -181,21 +181,11 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getTags(){
-		Cursor c = null;
 		try{
-			c = ecDB.query("tblTags", new String[]{"tag_id"}, null, null, null, null, null);
+			return getIDs("tblTags", new String[]{"tag_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
-		int count = c.getCount();
-
-		String result = count + " ";
-		
-		for(int i = 0; i < count; i++){
-			result += c.getInt(i) + " ";
-		}
-		
-		return result;
 	}
 	
 	/**
@@ -204,21 +194,11 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getFavList(){
-		Cursor c = null;
 		try{
-			c = ecDB.query("tblFavList", new String[]{"rec_id"}, null, null, null, null, null);
+			return getIDs("tblFavList", new String[]{"rec_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
-		int count = c.getCount();
-
-		String result = count + " ";
-		
-		for(int i = 0; i < count; i++){
-			result += c.getInt(i) + " ";
-		}
-		
-		return result;
 	}
 	
 	/**
@@ -227,21 +207,11 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getBuyList(){
-		Cursor c = null;
 		try{
-			c = ecDB.query("tblBuyList", new String[]{"ingr_id"}, null, null, null, null, null);
+			return getIDs("tblBuyList", new String[]{"ingr_id"});
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
-		int count = c.getCount();
-
-		String result = count + " ";
-		
-		for(int i = 0; i < count; i++){
-			result += c.getInt(i) + " ";
-		}
-		
-		return result;
 	}
 	
 }
