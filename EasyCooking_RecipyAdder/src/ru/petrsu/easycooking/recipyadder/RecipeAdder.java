@@ -29,6 +29,11 @@ import java.util.LinkedList;
 
 import org.w3c.dom.*;
 
+/**
+ * 
+ * @author Anton Andreev
+ *
+ */
 public class RecipeAdder extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
@@ -544,7 +549,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		for (JTextField tf : recIngrList) {
 			if (!tf.getText().isEmpty()) {
 				Element recIngr = doc.createElement("ingredient");
-				recIngr.setTextContent(tf.getText());
+				recIngr.setTextContent(tf.getText().toLowerCase());
 				rootElement.appendChild(recIngr);
 			}
 		}
@@ -560,7 +565,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		for (JTextField tf : recTagList) {
 			if (!tf.getText().isEmpty()) {
 				Element recTag = doc.createElement("tag");
-				recTag.setTextContent(tf.getText());
+				recTag.setTextContent(tf.getText().toLowerCase());
 				rootElement.appendChild(recTag);
 			}
 		}
@@ -664,9 +669,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 				moveXML(fname);
 			}
 		}
-
-		this.paintComponents(getGraphics()); // repaint needed to display
-												// addition or deletion of text
-												// fields
+		//repaint needed to display addition or deletion of text fields
+		this.paintComponents(getGraphics()); 	
 	}
 }
