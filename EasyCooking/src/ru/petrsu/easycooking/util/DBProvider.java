@@ -476,7 +476,8 @@ public class DBProvider extends SQLiteOpenHelper {
 	}
 	
 	/**
-	 * addToBuyList - ingredients id-list getter
+	 * addToBuyList - adds ingr to buy list
+	 * @param id Ingredient id
 	 */
 	@JavascriptInterface
 	public void addToBuyList(int id){
@@ -488,12 +489,39 @@ public class DBProvider extends SQLiteOpenHelper {
 	}
 	
 	/**
-	 * addToBuyList - ingredients id-list getter
+	 * addToFavourite - adds rec to fav list
+	 * @param id Recipe id
 	 */
 	@JavascriptInterface
 	public void addToFavourite(int id){
 		try{
 			ecDB.execSQL("INSERT INTO " + favTableName + " VALUES ( \""+ id +"\");");
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * removeFromFavourite - removes rec from fav list
+	 * @param id Recipe id
+	 */
+	@JavascriptInterface
+	public void removeFromFavourite(int id){
+		try{
+			ecDB.delete(favTableName, "rec_id= \""+ id +"\"", null);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * removeFromBuyList - removes ingr from buy list
+	 * @param id Ingredient id
+	 */
+	@JavascriptInterface
+	public void removeFromBuyList(int id){
+		try{
+			ecDB.delete(buyTableName, "ingr_id= \""+ id +"\"", null);
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
