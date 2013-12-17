@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
 		mainWebView = (WebView) findViewById(R.id.mainWebView);
 
 		mainWebView.loadUrl("file:///android_asset/home.html");
-
+		
 		webSettings = mainWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
 

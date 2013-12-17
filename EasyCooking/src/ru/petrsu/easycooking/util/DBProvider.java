@@ -461,4 +461,41 @@ public class DBProvider extends SQLiteOpenHelper {
 			throw new Error(e.getMessage());
 		}
 	}
+	
+	/**
+	 * getRecipeId- ingredients id-list getter
+	 * @return String that contains count of id's and list of id's with " " separator
+	 */
+	@JavascriptInterface
+	public String getRecipeId(String name){
+		try{
+			return getIDs(ingrTableName, "ingr_id", "rec_name="+name);
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * addToBuyList - ingredients id-list getter
+	 */
+	@JavascriptInterface
+	public void addToBuyList(int id){
+		try{
+			ecDB.execSQL("INSERT INTO " + buyTableName + " VALUES ( \""+ id +"\");");
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * addToBuyList - ingredients id-list getter
+	 */
+	@JavascriptInterface
+	public void addToFavourite(int id){
+		try{
+			ecDB.execSQL("INSERT INTO " + favTableName + " VALUES ( \""+ id +"\");");
+		} catch (SQLException e){
+			throw new Error(e.getMessage());
+		}
+	}
 }
