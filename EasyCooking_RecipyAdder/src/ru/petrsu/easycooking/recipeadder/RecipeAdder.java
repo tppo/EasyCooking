@@ -1,4 +1,4 @@
-package ru.petrsu.easycooking.recipyadder;
+package ru.petrsu.easycooking.recipeadder;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
