@@ -149,12 +149,15 @@ public class DBProvider extends SQLiteOpenHelper {
 		Cursor c = ecDB.query(tbl, new String[]{column}, where, null, null, null, null);
 		
 		int count = c.getCount();
-
-		String result = count + " ";
 		
-		for(int i = 0; i < count; i++){
-			result += c.getInt(i) + " ";
+	    String result=count + " ";
+	    c.moveToFirst();
+		for(int i = 0; i<count; i++,c.moveToNext()){
+			result+=c.getInt(0)+" ";
+			System.err.println(result);
 		}
+		
+		c.close();
 		
 		return result;
 	}
@@ -239,8 +242,13 @@ public class DBProvider extends SQLiteOpenHelper {
 
 		String result = "";
 		
-		if(c.getCount() > 0)
-		result = c.getString(0);
+		if(c.getCount() > 0){
+			c.moveToFirst();
+			result = c.getString(0);
+			System.err.println(result);
+		}
+		
+		c.close();
 		
 		return result;
 	}
@@ -293,24 +301,17 @@ public class DBProvider extends SQLiteOpenHelper {
 	public String getRecipeByIngredient(String ingr){
 		Cursor c = null;
 		int ingrId = 0;
+		String result = "0";
 		try{
 			c = ecDB.query(ingrTableName, new String[]{"ingr_id"}, "ingr_name=" + ingr.toLowerCase(), null, null, null, null);
 			if(c.getCount()>0){
 				ingrId = c.getInt(0);
 				c.close();
-				c = ecDB.query(recIngrTableName, new String[]{"rec_id"}, "ingr_id=" + ingrId, null, null, null, null);
+				result = getIDs(recIngrTableName, "rec_id", "ingr_id="+ ingrId);
 			}
 		} catch(SQLException e){
 			throw new Error(e.getMessage());
 		}
-		int count = c.getCount();
-
-		String result = count + " ";
-		
-		for(int i = 0; i < count; i++){
-			result += c.getInt(i) + " ";
-		}
-		
 		return result;
 	}
 	
@@ -323,22 +324,16 @@ public class DBProvider extends SQLiteOpenHelper {
 	public String getRecipeByTag(String tag){
 		Cursor c = null;
 		int tagId = 0;
+		String result = "0";
 		try{
 			c = ecDB.query(tagTableName, new String[]{"tag_id"}, "tag_name=" + tag.toLowerCase(), null, null, null, null);
 			if(c.getCount()>0){
 				tagId = c.getInt(0);	
 				c.close();
-				c = ecDB.query(recTagTableName, new String[]{"rec_id"}, "tag_id=" + tagId, null, null, null, null);
+				result = getIDs(recTagTableName, "rec_id", "tag_id=" + tagId);
 			}
 		} catch(SQLException e){
 			throw new Error(e.getMessage());
-		}
-		int count = c.getCount();
-
-		String result = count + " ";
-		
-		for(int i = 0; i < count; i++){
-			result += c.getInt(i) + " ";
 		}
 		
 		return result;
@@ -351,8 +346,11 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getRecipeByName(String name){
+		System.err.println("getRecByName called");
 		try{
-			return getIDs(recTableName, "rec_id", "rec_name LIKE '"+name.toLowerCase()+"%'");
+			String s = getIDs(recTableName, "rec_id", "rec_name LIKE '"+name.toLowerCase()+"%'");
+			System.err.println("returned "+s);
+			return s;
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
@@ -372,8 +370,11 @@ public class DBProvider extends SQLiteOpenHelper {
 
 		int result = -1;
 		
-		if(c.getCount() > 0)
-		result = c.getInt(0);
+		if(c.getCount() > 0){
+			c.moveToFirst();
+			result = c.getInt(0);
+		}
+		c.close();
 		
 		return result;
 	}
@@ -469,7 +470,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	@JavascriptInterface
 	public String getRecipeId(String name){
 		try{
-			return getIDs(ingrTableName, "ingr_id", "rec_name="+name);
+			return getIDs(recTableName, "rec_id", "rec_name=\""+name+"\"");
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
 		}
