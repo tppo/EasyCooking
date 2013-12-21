@@ -1,0 +1,43 @@
+#searchInput {
+	width: 80%;
+	text-align: right;
+	display: inline-block;
+}
+
+#cookButton {
+	display: inline-block;
+}
+
+#mainSection {
+	
+	
+}
+#buttonsSection {
+	
+	height: 40px;
+	background-color: grey;
+}
+#allRecipes {
+	
+	height: 100%;
+	width: 29%;
+	display: inline-block;
+}
+#favourites {
+	
+	
+	height: 100%;
+	width: 29%;
+	display: inline-block;
+}
+#toBuyList {
+	
+	height: 100%;
+	width: 29%;
+	display: inline-block;
+}
+#toHome {
+	height: 100%;
+	width: 9%;
+	display: inline-block;
+}
