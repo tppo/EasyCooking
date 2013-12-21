@@ -26,6 +26,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.sql.*;
 import java.util.LinkedList;
+import java.util.logging.Logger;
 
 import org.w3c.dom.*;
 
@@ -37,6 +38,8 @@ import org.w3c.dom.*;
 public class RecipeAdder extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static Logger log = Logger.getLogger(RecipeAdder.class.getName());
 
 	/**
 	 * Connection to database
@@ -105,7 +108,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			dBuilder = dbFactory.newDocumentBuilder();
 			transformer = transformerFactory.newTransformer();
 		} catch (Exception e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			log.severe("constructor :"+e.getClass().getName() + ": " + e.getMessage());
 			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
@@ -215,6 +218,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	public void init() {
 		setBounds(100, 100, 400, 400);
 
+		log.info("init: creating dir structure");
 		File xmlDir = new File("./res/xml/");
 		File resDir = new File("./res/");
 		File newDir = new File("./res/xml/new");
@@ -238,6 +242,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent event) {
+				log.info("closing RecipeAdder");
 				closeDB();
 				dispose();// close frame
 				System.exit(0);
@@ -268,7 +273,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 * @return false If database file not found
 	 */
 	private boolean openDB() {
-		System.out.println("Connecting to database");
+		log.info("openDB: Connecting to database");
 		int count = 0;
 
 		try {
@@ -283,20 +288,20 @@ public class RecipeAdder extends JFrame implements ActionListener {
 					.getInt(1);
 
 		} catch (Exception e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			log.severe("openDB: "+e.getClass().getName() + ": " + e.getMessage());
 			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
 
-		System.out.println("Connected database successfully");
+		log.info("openDB: Connected database successfully");
 
 		// deciding if database is new
 		System.out.println("count = " + count);
 		if (count > 3) {
-			System.out.println("Database alredy exists");
+			log.info("openDB: Database alredy exists");
 			return true;
 		} else {
-			System.out.println("Database not exists");
+			log.info("openDB: Database not exists");
 			return false;
 		}
 	}
@@ -305,23 +310,23 @@ public class RecipeAdder extends JFrame implements ActionListener {
 	 * Closes database
 	 */
 	private void closeDB() {
-		System.out.println("Closing database");
+		log.info("closeDB: Closing database");
 		try {
 			stmt.close();
 			c.close();
 		} catch (SQLException e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			log.severe("closeDB: "+e.getClass().getName() + ": " + e.getMessage());
 			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
-		System.out.println("Database closed successfully");
+		log.info("closeDB: Database closed successfully");
 	}
 
 	/**
 	 * Initializes database structure
 	 */
 	private void initDB() {
-		System.out.println("Initializing database structure");
+		log.info("initDB: Initializing database structure");
 
 		String createMetadataTable = "CREATE TABLE android_metadata "
 				+ "(locale TEXT DEFAULT ru_RU);";
@@ -363,12 +368,12 @@ public class RecipeAdder extends JFrame implements ActionListener {
 			stmt.executeUpdate(createIndexRecName);
 			stmt.executeUpdate(createIndexIngrName);
 		} catch (SQLException e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			log.info("initDB:" + e.getClass().getName() + ": " + e.getMessage());
 			JOptionPane.showMessageDialog(this, e.getMessage());
 			System.exit(0);
 		}
 
-		System.out.println("Database structure succesfully initialized");
+		log.info("initDB: Database structure succesfully initialized");
 	}
 
 	/**
@@ -578,7 +583,7 @@ public class RecipeAdder extends JFrame implements ActionListener {
 		try {
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			log.severe("createXmlFromInput: " + e.getClass().getName() + ": " + e.getMessage());
 			System.exit(0);
 		}
 
