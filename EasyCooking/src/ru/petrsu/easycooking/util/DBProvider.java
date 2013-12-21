@@ -13,6 +13,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 /**
@@ -91,7 +92,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	private boolean checkDB() {
 		File dbFile = new File(DB_PATH + DB_NAME);
 		boolean check = dbFile.exists();
-		System.out.println("existence="+check);
+		Log.i("DBProvider", "database existence in cache: " + check);
 		dbFile = null;
 		return check;
 	}
@@ -101,6 +102,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	private void copyDB() {
 
+		Log.i("DBProvider", "starting copying db to cache");
 		this.getWritableDatabase();
 
 		try {
@@ -121,6 +123,7 @@ public class DBProvider extends SQLiteOpenHelper {
 		} catch (IOException e) {
 			throw new Error("Error copying database ; " + e.getMessage());
 		}
+		Log.i("DBProvider", "finished copying db to cache");
 	}
 
 	/**
@@ -128,6 +131,8 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * @throws SQLiteException On opening issues
 	 */
 	public void openDB() throws SQLiteException {
+		Log.i("DBProvider", "trying to open db file");
+		
 		String myPath = DB_PATH + DB_NAME;
 
 		if (!this.checkDB()) {
@@ -136,6 +141,7 @@ public class DBProvider extends SQLiteOpenHelper {
 		
 		ecDB = SQLiteDatabase.openDatabase(myPath, null,
 				SQLiteDatabase.OPEN_READWRITE);
+		Log.i("DBProvider", "db file opening finished with success");
 	}
 
 	/**
@@ -146,15 +152,17 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * @return String that contains count of id's and list of id's with " " separator
 	 */
 	private String getIDs(String tbl, String column, String where) throws SQLException{
+		Log.d("DBProvider.getIDs","trying to get ids from "+ tbl+" where: "+where);
 		Cursor c = ecDB.query(tbl, new String[]{column}, where, null, null, null, null);
 		
 		int count = c.getCount();
 		
-	    String result=count + " ";
+	    String result = count + " ";
 	    c.moveToFirst();
-		for(int i = 0; i<count; i++,c.moveToNext()){
+		while(count!=0 && !c.isAfterLast()){
 			result+=c.getInt(0)+" ";
-			System.err.println(result);
+			Log.d("DBProvider.getIDs", "result at "+c.getPosition()+ " = "+ result);
+			c.moveToNext();
 		}
 		
 		c.close();
@@ -238,6 +246,8 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * @throws SQLException On error in query handling
 	 */
 	private String getColumn(String tbl, String n_col, String id_col, String id) throws SQLException{
+		Log.d("DBProvider.getColumn","trying to get " + n_col + " from " + tbl + " for " + id + " id");
+		
 		Cursor c = ecDB.query(tbl, new String[]{n_col}, id_col + "=" + id , null, null, null, null);
 
 		String result = "";
@@ -245,8 +255,9 @@ public class DBProvider extends SQLiteOpenHelper {
 		if(c.getCount() > 0){
 			c.moveToFirst();
 			result = c.getString(0);
-			System.err.println(result);
 		}
+		
+		Log.d("DBProvider.getColumn","got: " + result);
 		
 		c.close();
 		
@@ -299,19 +310,22 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getRecipeByIngredient(String ingr){
+		Log.d("DBProvider.getRecByIngr","trying to find recipes with " + ingr + " ingredient");
 		Cursor c = null;
 		int ingrId = 0;
 		String result = "0";
 		try{
 			c = ecDB.query(ingrTableName, new String[]{"ingr_id"}, "ingr_name=" + ingr.toLowerCase(), null, null, null, null);
-			if(c.getCount()>0){
+			if(c.getCount() > 0){
 				ingrId = c.getInt(0);
 				c.close();
+				Log.d("DBProvider.getRecByIngr","ingr id =" + ingrId);
 				result = getIDs(recIngrTableName, "rec_id", "ingr_id="+ ingrId);
 			}
 		} catch(SQLException e){
 			throw new Error(e.getMessage());
 		}
+		Log.d("DBProvider.getRecByIngr","result: " + result);
 		return result;
 	}
 	
@@ -322,6 +336,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getRecipeByTag(String tag){
+		Log.d("DBProvider.getRecByTag","trying to find recipes with " + tag + " tag");
 		Cursor c = null;
 		int tagId = 0;
 		String result = "0";
@@ -330,12 +345,13 @@ public class DBProvider extends SQLiteOpenHelper {
 			if(c.getCount()>0){
 				tagId = c.getInt(0);	
 				c.close();
+				Log.d("DBProvider.getRecByTag","tag id =" + tagId);
 				result = getIDs(recTagTableName, "rec_id", "tag_id=" + tagId);
 			}
 		} catch(SQLException e){
 			throw new Error(e.getMessage());
 		}
-		
+		Log.d("DBProvider.getRecByTag","result: " + result);
 		return result;
 	}
 	
@@ -346,10 +362,10 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public String getRecipeByName(String name){
-		System.err.println("getRecByName called");
+		Log.d("DBProvider.getRecipeByName","trying to find recipes with '"+ name +"' namepattern");
 		try{
 			String s = getIDs(recTableName, "rec_id", "rec_name LIKE '"+name.toLowerCase()+"%'");
-			System.err.println("returned "+s);
+			Log.d("DBProvider.getRecipeByName","found: " + s);
 			return s;
 		} catch (SQLException e){
 			throw new Error(e.getMessage());
@@ -366,6 +382,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 * @throws SQLException On error in query handling
 	 */
 	private int getId(String tbl, String id_col, String n_col, String name) throws SQLException{
+		Log.d("DBProvider.getId","trying to find id from "+tbl+" for element with '"+name+"' name");
 		Cursor c = ecDB.query(tbl, new String[]{id_col}, n_col + "=" + name.toLowerCase() , null, null, null, null);
 
 		int result = -1;
@@ -374,6 +391,7 @@ public class DBProvider extends SQLiteOpenHelper {
 			c.moveToFirst();
 			result = c.getInt(0);
 		}
+		Log.d("DBProvider.getId","found: "+result);
 		c.close();
 		
 		return result;
@@ -482,6 +500,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public void addToBuyList(int id){
+		Log.d("DBProvider.addToBuyList","trying to add ingr " + id + " to buy list");
 		try{
 			ecDB.execSQL("INSERT INTO " + buyTableName + " VALUES ( \""+ id +"\");");
 		} catch (SQLException e){
@@ -495,6 +514,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public void addToFavourite(int id){
+		Log.d("DBProvider.addToFavourite","trying to add rec " + id + " to favourite list");
 		try{
 			ecDB.execSQL("INSERT INTO " + favTableName + " VALUES ( \""+ id +"\");");
 		} catch (SQLException e){
@@ -508,6 +528,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public void removeFromFavourite(int id){
+		Log.d("DBProvider.removeFromFavourite","trying to remove rec " + id + " from favourite list");
 		try{
 			ecDB.delete(favTableName, "rec_id= \""+ id +"\"", null);
 		} catch (SQLException e){
@@ -521,6 +542,7 @@ public class DBProvider extends SQLiteOpenHelper {
 	 */
 	@JavascriptInterface
 	public void removeFromBuyList(int id){
+		Log.d("DBProvider.removeFromBuyList","trying to remove ingr " + id + " from buy list");
 		try{
 			ecDB.delete(buyTableName, "ingr_id= \""+ id +"\"", null);
 		} catch (SQLException e){
