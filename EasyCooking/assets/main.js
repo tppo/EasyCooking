@@ -13,6 +13,7 @@ var drawMini = function (t_id) {
 	for(var i=1;i<=len;i++)
 		str+=ingr_txt[i]+' ';
 	t.innerHTML=str;
+	document.getElemetById('mainSection').appendChild(t);
 	
 }
 var cookButtonHandler=function(){
