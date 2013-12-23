@@ -42,3 +42,8 @@
 	width: 9%;
 	display: inline-block;
 }
+.miniRec {
+	border: 4px double black; 
+    background: #fc3; 
+    padding: 10px; 
+}
