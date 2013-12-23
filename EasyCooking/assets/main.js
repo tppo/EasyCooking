@@ -30,7 +30,7 @@ var drawMini = function (t_id) {
 var cookButtonHandler=function(){
 	var str=document.getElementById('searchInput').value;
 	var mnSctn=document.getElementById('mainSection');
-	mnSctn.empty();
+	$(mnSctn).empty();
 	var lst=dbProvider.getRecipeId(str).split(' ');
 	var t=parseInt(lst[0]);
 	if(t==0) {
@@ -47,10 +47,10 @@ var cookButtonHandler=function(){
 
 var allRecipesHandler = function() {
 	var mnSctn=document.getElementById('mainSection');
-	//mnSctn.empty();
-	var last;
-    while (last = mnSctn.lastChild) 
-    	mnSctn.removeChild(last);
+	$(mnSctn).empty();
+	//var last;
+  //  while (last = mnSctn.lastChild) 
+    //	mnSctn.removeChild(last);
 	var lst=dbProvider.getRecipes().split(' ');
 	var t=parseInt(lst[0]);
 	for(var i=1;i<=t;i++)
@@ -58,10 +58,10 @@ var allRecipesHandler = function() {
 };
 var favouriteHandler = function () {
 	var mnSctn=document.getElementById('mainSection');
-	//mnSctn.empty();
+	$(mnSctn).empty();
 	var last;
-    while (last = mnSctn.lastChild) 
-    	mnSctn.removeChild(last);
+   // while (last = mnSctn.lastChild) 
+    //	mnSctn.removeChild(last);
 	var lst=dbProvider.getFavouriteList().split('');
 	var t=parseInt(lst[0]);
 	for(var i=1;i<=t;i++)
@@ -71,10 +71,10 @@ var favouriteHandler = function () {
 
 var toBuyHandler = function () {
 	var mnSctn=document.getElementById('mainSection');
-	//mnSctn.empty();
-	var last;
-    while (last = mnSctn.lastChild) 
-    	mnSctn.removeChild(last);
+	$(mnSctn).empty();
+	//var last;
+   // while (last = mnSctn.lastChild) 
+    	//mnSctn.removeChild(last);
 	var lst=dbProvider.getBuyList().split(' ');
 	var t=parseInt(lst[0]);
 	var str;
@@ -88,6 +88,7 @@ var toBuyHandler = function () {
 };
 var homeHandler = function ()  {
 	var mnSctn=document.getElementById('mainSection');
+	$(mnSctn).empty();
 	
 };
 
@@ -118,10 +119,11 @@ var searchHandler = function () {
 var fullPage = function (t_id) {
 	console.log("fullpaging "+t_id);
 	var mnSctn=document.getElementById('mainSection');
-	//mnSctn.empty();
-	var last;
-    while (last = mnSctn.lastChild) 
-    	mnSctn.removeChild(last);
+	$(mnSctn).empty();
+	//var last;
+   // while (last = mnSctn.lastChild) 
+    //	mnSctn.removeChild(last);
+
 	var ingr_lst=(dbProvider.getRecipeIngredients(t_id)).split(' ');
 	var nm=dbProvider.getRecipeName(t_id);
 	var dcr=dbProvider.getDescription(t_id);
