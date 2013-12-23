@@ -6,9 +6,14 @@ var drawMini = function (t_id) {
 	for(var i=1;i<=len;i++)
 		ingr_txt[i]=dbProvider.getIngredientName(parseInt(ingr_lst[i]));
 	
-	var nm=dbProvider.getRecipeName(t_id);
+	var nm=dbProvider.getRecName(t_id);
 	
 	var t=document.createElement('div');
+	
+	t.attr("width", "90%");
+	t.click(function(){
+		fullPage(t_id);	
+	});
 	var str=nm.toString()+"\n";
 	for(var i=1;i<=len;i++)
 		str+=ingr_txt[i]+' ';
@@ -18,31 +23,54 @@ var drawMini = function (t_id) {
 }
 var cookButtonHandler=function(){
 	var str=document.getElementById('searchInput').value;
+	var mnSctn=document.getElementById('mainSection');
+	mnSctn.empty();
 	var lst=dbProvider.getRecipeId(str).split(' ');
 	var t=parseInt(lst[0]);
-	for(i=1;i<=t;i++)
-		drawMini(parseInt(lst[i]));
+	if(t==0) {
+		var tmp=document.createElement('p');
+		tmp.innerHTML="Sorry, such recipe was not found";
+		mnSctn.appendChild(tmp);
+	}
+	else {
+		for(var i=1;i<=t;i++)
+			drawMini(parseInt(lst[i]));
+	}
 	
 };
 
 var allRecipesHandler = function() {
 	var mnSctn=document.getElementById('mainSection');
+	mnSctn.empty();
 	var lst=dbProvider.getRecipes().split(' ');
 	var t=parseInt(lst[0]);
-	for(i=1;i<=t;i++)
+	for(var i=1;i<=t;i++)
 		drawMini(parseInt(lst[i]));
 };
 var favouriteHandler = function () {
-	
 	var mnSctn=document.getElementById('mainSection');
+	mnSctn.empty();
+	var lst=dbProvider.getFavouriteList().split('');
+	var t=parseInt(lst[0]);
+	for(var i=1;i<=t;i++)
+		drawMini(parseInt(lst[i]));
 	
 };
 
 var toBuyHandler = function () {
 	var mnSctn=document.getElementById('mainSection');
-	
+	mnSctn.empty();
+	var lst=dbProvider.getBuyList().split(' ');
+	var t=parseInt(lst[0]);
+	var str;
+	for(var i=1;i<=t;i++){
+		str=dbProvider.getIngredientName(parseInt(lst[i]));
+		var tmp=document.createElement('a');
+		tmp.innerHTML=str;
+		mnSctn.append(tmp);
+	}
+			
 };
-
 var homeHandler = function ()  {
 	var mnSctn=document.getElementById('mainSection');
 	
@@ -72,7 +100,47 @@ var searchHandler = function () {
 	
 };
 
-var fullPage = function () {
+var fullPage = function (t_id) {
+	var mnSctn=document.getElementById('mainSection');
+	mnSctn.empty();
+	var ingr_lst=(dbProvider.getRecipeIngredients(t_id)).split(' ');
+	var nm=dbProvider.getRecName(t_id);
+	var dcr=dpProvider.getDescription(t_id);
+	
+	
+	var tmp=document.createElement('div');
+	tmp.attr("scroll", "yes");
+	
+	var tl=document.createElement('h1');
+	t1.attr("font-size","20px");
+	t1.innerHTML=mn;
+	tmp.append(t1);
+	
+	var tgs=document.createElement('p');
+	tgs.innerHTML="tags: ";
+	tgs.attr("font-size","12px");
+	tgs.attr("align","right");
+	
+	var tgs_lst=dpProvider.getRecipeTags(t_id);
+	for(var i=1;i<=tgs_lst[0];i++)
+		tgs.innerHTML+=dpProvider.getTagName(tgs_lst[i]+ " ");
+	tmp.append(tgs);
+	
+	
+	var p=document.createElement('p');
+	p.attr("font-size","14");
+	for(var i=1;i<=ingr_lst[0];i++)
+		p.innerHTML+=dpProvider.getIngredientName(ingr_lst[i])+" ";
+	tmp.append(p);
+	
+	
+	
+	var d=document.createElement('p');
+	d.attr("font-size","14");
+	d.innerHTML=dcrp;
+	tmp.append(d);
+	
+	
 	
 	
 };
